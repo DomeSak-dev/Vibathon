@@ -1,0 +1,52 @@
+{
+  "_note": "Every number the siting model uses. See ASSUMPTIONS.md. Change values here, not in code.",
+  "power": {
+    "_note": "Indicative MW a new campus could draw from the existing >=230 kV network in the county, by highest line voltage. Rule of thumb: one 230 kV line carries ~200-400 MW, 345 kV ~400-900 MW, 500 kV 1,000+ MW.",
+    "mw_by_kv": {"500": 1000, "345": 500, "230": 250, "0": 50},
+    "months_by_kv": {"500": [24, 36], "345": [24, 42], "230": [36, 48], "0": [60, 96]},
+    "planned_gen_bonus_per_gw": 0.25,
+    "planned_gen_bonus_cap": 0.5,
+    "retire_penalty_per_gw": 0.15
+  },
+  "water": {
+    "_note": "On-site water per kWh of facility energy, by cooling design. Allowance = share of the county's public-supply withdrawals a single campus could take.",
+    "cooling": {
+      "evaporative": {"label": "Evaporative (cooling towers)", "l_per_kwh": 1.8},
+      "hybrid":      {"label": "Hybrid (evaporative on hot days)", "l_per_kwh": 0.5},
+      "closed_loop": {"label": "Closed-loop / air-cooled", "l_per_kwh": 0.05}
+    },
+    "default_cooling": "hybrid",
+    "allowance_share_of_public_supply": 0.10,
+    "heat_base": 0.7,
+    "heat_ref_cdd": 1500,
+    "price_per_kgal_default": 6.0,
+    "price_per_kgal_overrides": {
+      "32510": {"price": 4.20, "where": "Carson City, NV (commercial volume charge, Jul 2025)", "url": "https://www.carsoncity.gov/home/showpublisheddocument/91222/638851586106100000"},
+      "12127": {"price": 5.38, "where": "Orange City, FL (commercial tier 1, Oct 2025)", "url": "https://mta-sts.orangecityfl.gov/city/government/utilities-water-rates/water-rates-commercial.pdf"},
+      "12119": {"price": 5.58, "where": "Webster, FL (commercial, 2025)", "url": "https://websterfl.com/wp-content/uploads/2025/11/Water-and-Sewer-Rates-Worksheet-2025-1.pdf"},
+      "48085": {"price": 9.44, "where": "Lucas, TX (volumetric, 2025)", "url": "https://www.lucastexas.us/226/Water-Waste-Water-Utility-Rates"}
+    }
+  },
+  "land": {
+    "_note": "Acres a campus needs per MW (buildings, substation, setbacks), and the share of a county's open land realistically available as large parcels.",
+    "acres_per_mw": 1.0,
+    "open_land_share_available": 0.005,
+    "density_full_open": 50,
+    "density_no_open": 3000
+  },
+  "facility": {
+    "utilization": 0.7,
+    "_note_utilization": "Average load as a share of the campus's maximum draw."
+  },
+  "weights": {"power": 0.45, "water": 0.30, "land": 0.25},
+  "sources": {
+    "transmission": "HIFLD Electric Power Transmission Lines (>=230 kV), via ArcGIS FeatureServer US_Electric_Power_Transmission_Lines",
+    "generation": "EIA-860M, September 2026 (operating, planned and retiring generators)",
+    "water": "USGS Estimated Use of Water in the United States, County-Level Data for 2015 (v2.0)",
+    "climate": "NOAA nClimDiv county normals 1991-2020: annual precipitation and cooling degree days",
+    "population": "US Census Bureau county population estimates, July 2024",
+    "land": "US Census Bureau 2023 cartographic boundary counties (land area)",
+    "price": "EIA Electric Power Monthly Table 5.6.B, Jan-Aug 2026 YTD",
+    "tokens": "Wh per 1,000 output tokens by model tier: data/energy_factors.json (from the AI Energy Bill project)"
+  }
+}

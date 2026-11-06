@@ -1,0 +1,49 @@
+{
+  "_note": "Energy factors are Wh per 1,000 OUTPUT tokens at the facility (PUE included). Input tokens count at input_weight x output; cached input reads at cached_weight. See ASSUMPTIONS.md.",
+  "input_weight": 0.1,
+  "cached_weight": 0.0,
+  "classes": {
+    "small":  {"label": "Small model",  "examples": "Haiku, GPT-4o-mini, Flash-Lite", "low": 0.06, "typical": 0.3, "high": 1.0},
+    "medium": {"label": "Medium model", "examples": "Sonnet, GPT-4o, GPT-5, Gemini Flash", "low": 0.6, "typical": 1.5, "high": 3.5},
+    "large":  {"label": "Large model",  "examples": "Opus, o3, GPT-4, Gemini Pro", "low": 2.0, "typical": 4.5, "high": 10.0}
+  },
+  "model_rules": [
+    {"match": "flash-lite", "class": "small"},
+    {"match": "mini", "class": "small"},
+    {"match": "nano", "class": "small"},
+    {"match": "haiku", "class": "small"},
+    {"match": "gpt-3.5", "class": "small"},
+    {"match": "flash", "class": "medium"},
+    {"match": "sonnet", "class": "medium"},
+    {"match": "gpt-4o", "class": "medium"},
+    {"match": "gpt-4.1", "class": "medium"},
+    {"match": "gpt-5", "class": "medium"},
+    {"match": "o1", "class": "medium"},
+    {"match": "opus", "class": "large"},
+    {"match": "gpt-4", "class": "large"},
+    {"match": "o3", "class": "large"},
+    {"match": "pro", "class": "large"}
+  ],
+  "default_class": "medium",
+  "water_l_per_kwh": {
+    "onsite":  {"low": 0.15, "typical": 0.3, "high": 1.15},
+    "offsite": {"low": 2.18, "typical": 4.4, "high": 5.11}
+  },
+  "equivalents": {
+    "tree_kg_co2_per_year": 60,
+    "home_kwh_per_day": 33.41,
+    "bottle_l": 0.5,
+    "us_datacenter_kwh_per_year": 176e9
+  },
+  "sources": {
+    "energy": ["EcoLogits methodology, https://ecologits.ai/latest/methodology/llm_inference/",
+               "Jegham et al. 2025, How Hungry is AI?, https://arxiv.org/abs/2505.09598",
+               "Google 2025, 0.24 Wh per median Gemini prompt, https://arxiv.org/abs/2508.15734",
+               "OpenAI 2025, ~0.34 Wh per average ChatGPT query, https://blog.samaltman.com/the-gentle-singularity"],
+    "grid": ["EPA eGRID2023 Rev 2 subregion total output CO2e rates, https://www.epa.gov/egrid/summary-data"],
+    "price": ["EIA Electric Power Monthly Table 5.6.B, commercial, Jan-Aug 2026, https://www.eia.gov/electricity/monthly/"],
+    "water": ["Li et al., Making AI Less Thirsty, https://arxiv.org/abs/2304.03271",
+              "LBNL 2024 US Data Center Energy Usage Report, https://datacenters.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report"],
+    "equivalents": ["EPA Greenhouse Gas Equivalencies Calculator, https://www.epa.gov/energy/greenhouse-gas-equivalencies-calculator-calculations-and-references"]
+  }
+}

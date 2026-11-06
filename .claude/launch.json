@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "siting", "runtimeExecutable": "python", "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--port", "8001", "--reload"], "port": 8001 }
+  ]
+}
