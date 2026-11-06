@@ -36,7 +36,31 @@
   },
   "facility": {
     "utilization": 0.7,
-    "_note_utilization": "Average load as a share of the campus's maximum draw."
+    "_note_utilization": "Average load as a share of the campus's maximum draw.",
+    "min_viable_mw": 100,
+    "_note_min_viable_mw": "Below this a county is flagged as too small for a large campus, whatever its score."
+  },
+  "pricing": {
+    "_note": "Cost model: yearly running cost plus a yearly charge on the land. Every number is shown in the app under Inputs and method. Guesses are flagged in ASSUMPTIONS.md (C1-C9).",
+    "power_sources": {
+      "grid":      {"label": "Grid",      "usd_mwh": null},
+      "solar_ppa": {"label": "Solar PPA", "usd_mwh": 60, "approx": true},
+      "wind_ppa":  {"label": "Wind PPA",  "usd_mwh": 70, "approx": true}
+    },
+    "default_power_source": "grid",
+    "_note_ppa": "A PPA price covers energy only; the campus still pays the utility to deliver it.",
+    "ppa_delivery_c_per_kwh": [1.5, 3.0],
+    "_note_capacity": "Capacity charge for new large loads, $/MW-day of campus MW. Only PJM is priced; elsewhere it is assumed to be inside the state rate.",
+    "capacity_usd_per_mw_day": {"PJM": 333.44},
+    "capacity_where": {"PJM": "PJM 2027/28 capacity auction, RTO-wide price"},
+    "_note_water": "The default water rate is scaled by water stress (0 -> low, 100 -> high). Verified local rates are used as they are.",
+    "water_stress_multiplier": [0.75, 1.5],
+    "sewer_share_of_water": 0.20,
+    "_note_land": "Land is bought once: campus acres x state farmland value x a premium for being near a big line. A yearly charge (capital_charge) turns it into a yearly cost.",
+    "land_usd_per_acre_us": 4500,
+    "land_usd_per_acre_by_state": {"AL": 4250, "AR": 4350, "AZ": 4300, "CA": 14100, "CO": 2360, "CT": 14600, "DE": 9700, "FL": 9150, "GA": 4950, "IA": 10100, "ID": 4750, "IL": 9250, "IN": 9150, "KS": 3200, "KY": 5600, "LA": 3950, "MA": 15200, "MD": 9950, "ME": 3400, "MI": 7000, "MN": 6950, "MO": 5200, "MS": 3650, "MT": 1260, "NC": 5750, "ND": 2450, "NE": 4400, "NH": 6670, "NJ": 17000, "NM": 735, "NV": 1230, "NY": 4500, "OH": 9650, "OK": 2620, "OR": 3880, "PA": 8700, "RI": 23600, "SC": 4900, "SD": 3100, "TN": 6500, "TX": 3100, "UT": 3650, "VA": 6300, "VT": 4490, "WA": 3800, "WI": 6700, "WV": 3640, "WY": 1030},
+    "land_premium_by_kv": {"0": 1, "230": 10, "345": 20, "500": 25},
+    "capital_charge": 0.08
   },
   "weights": {"power": 0.45, "water": 0.30, "land": 0.25},
   "sources": {
@@ -47,6 +71,10 @@
     "population": "US Census Bureau county population estimates, July 2024",
     "land": "US Census Bureau 2023 cartographic boundary counties (land area)",
     "price": "EIA Electric Power Monthly Table 5.6.B, Jan-Aug 2026 YTD",
-    "tokens": "Wh per 1,000 output tokens by model tier: data/energy_factors.json (from the AI Energy Bill project)"
+    "tokens": "Wh per 1,000 output tokens by model tier: data/energy_factors.json (from the AI Energy Bill project)",
+    "capacity": "PJM Inside Lines, Dec 17 2025: 2027/2028 Base Residual Auction cleared at the cap, $333.44/MW-day (UCAP), https://insidelines.pjm.com/pjm-auction-procures-134479-mw-of-generation-resources/",
+    "ppa": "LevelTen North American PPA Price Index, Q2 2026 (approximate; full index is paid), https://www.leveltenenergy.com/post/levelten-north-american-ppa-price-index-q2-2026",
+    "land_price": "USDA NASS Land Values 2026 Summary (July 2026): farm real estate average value per acre by state; Alaska, Hawaii and DC not reported, https://esmis.nal.usda.gov/sites/default/release-files/795999/land0726.txt",
+    "land_premium": "Data Center Knowledge: sites near 230-500 kV lines sold for about 2.4x those near 138 kV or lower (Altus Group, 80 deals), https://datacenterknowledge.com/data-center-construction/ai-data-center-land-buying-hits-6b-as-power-premiums-rise"
   }
 }

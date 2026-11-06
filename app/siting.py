@@ -5,6 +5,8 @@ Power MW  = MW by highest line voltage x (1 + planned-generation bonus - retirem
 Water MW  = 10% of public-supply withdrawals / water per MW (cooling design x local heat)
 Land MW   = open acres x 0.2% / 1 acre per MW
 Tokens/day = MW x utilization x 24 h / (Wh per 1,000 output tokens) x 1,000
+Cost/year  = energy (state rate, or PPA + delivery) + PJM capacity + water and sewer (default rate x stress)
+             + capital charge x land (acres x state farmland $/acre x line-voltage premium)
 All assumptions: ASSUMPTIONS.md. All numbers: data/siting_factors.json.
 """
 from __future__ import annotations
@@ -84,11 +86,75 @@ def table(cooling: str = F["water"]["default_cooling"]) -> pd.DataFrame:
     caps = d[["power_mw", "water_mw", "land_mw"]]
     d["supportable_mw"] = caps.min(axis=1).clip(lower=0).round()
     d["binding"] = caps.idxmin(axis=1).str.replace("_mw", "", regex=False)
+
+    # grid operator: a county with no generator has none on file, so take the nearest county in the
+    # same state that has one (any state if none does). Flagged as estimated.
+    d["ba_est"] = d.ba.isna()
+    d["ba_fill"] = d.ba
+    lat, lon = np.radians(d.lat.to_numpy()), np.radians(d.lon.to_numpy())
+    known = d.ba.notna().to_numpy()
+    for i in np.flatnonzero(~known):
+        pool = known & (d.STUSPS.to_numpy() == d.STUSPS.iat[i])
+        if not pool.any():
+            pool = known
+        j = np.flatnonzero(pool)
+        dx = (lon[j] - lon[i]) * np.cos((lat[j] + lat[i]) / 2)
+        d.iat[i, d.columns.get_loc("ba_fill")] = d.ba.iat[j[np.argmin(dx * dx + (lat[j] - lat[i]) ** 2)]]
+
+    # land price: state farmland value (USDA); Alaska, Hawaii and DC are not reported -> US average, flagged
+    C = F["pricing"]
+    d["land_usd_acre"] = d.STUSPS.map(C["land_usd_per_acre_by_state"])
+    d["land_price_est"] = d.land_usd_acre.isna()
+    d["land_usd_acre"] = d.land_usd_acre.fillna(C["land_usd_per_acre_us"])
     return d
 
 
-def scored(cooling: str, weights: dict[str, float]) -> pd.DataFrame:
+@lru_cache(maxsize=16)
+def priced(cooling: str = F["water"]["default_cooling"], power: str = F["pricing"]["default_power_source"]) -> pd.DataFrame:
+    """Yearly cost of the campus each county can host. Missing inputs stay NaN, never zero."""
     d = table(cooling).copy()
+    C, W = F["pricing"], F["water"]
+    util = F["facility"]["utilization"]
+    mw = d.supportable_mw
+    mwh = mw * util * 8760
+
+    # power: energy at the state industrial rate, or a PPA price plus delivery
+    src = C["power_sources"][power]
+    if src["usd_mwh"] is None:
+        d["energy_usd_mwh"] = d.elec_ind_c * 10                      # cents/kWh -> $/MWh
+    else:
+        d["energy_usd_mwh"] = src["usd_mwh"] + sum(C["ppa_delivery_c_per_kwh"]) / 2 * 10
+    d["energy_cost_year"] = mwh * d.energy_usd_mwh
+    # capacity: priced only where a market price applies (PJM); NaN = assumed inside the energy price
+    d["capacity_usd_mw_day"] = d.ba_fill.map(C["capacity_usd_per_mw_day"]).astype(float)
+    d["capacity_cost_year"] = mw * d.capacity_usd_mw_day * 365
+
+    # water and sewer: default rate scaled by water stress; a verified local rate is used as it is
+    d["water_gal_year"] = mw * water_mgd_per_mw(cooling, util) * d.heat_mult * 1e6 * 365
+    lo, hi = C["water_stress_multiplier"]
+    local = d.GEOID.isin(list(W["price_per_kgal_overrides"]))
+    d["water_rate_local"] = local
+    d["water_mult"] = np.where(local, 1.0, (lo + (hi - lo) * d.water_stress / 100).round(2))
+    d["water_rate"] = d.water_price * d.water_mult
+    d["water_cost_year"] = d.water_gal_year / 1000 * d.water_rate
+    d["sewer_cost_year"] = d.water_gal_year * C["sewer_share_of_water"] / 1000 * d.water_rate
+
+    # land: bought once, carried at a yearly capital charge
+    d["land_premium"] = d.kv_tier.map(C["land_premium_by_kv"]).astype(float)
+    d["land_acres"] = mw * F["land"]["acres_per_mw"]
+    d["land_cost"] = d.land_acres * d.land_usd_acre * d.land_premium
+    d["land_cost_year"] = d.land_cost * C["capital_charge"]
+
+    # NaN energy price -> NaN total (missing, not cheap); capacity NaN means "not priced separately"
+    d["total_cost_year"] = (d.energy_cost_year + d.capacity_cost_year.fillna(0) + d.water_cost_year
+                            + d.sewer_cost_year + d.land_cost_year)
+    d["cost_mwh"] = (d.total_cost_year / mwh).where(mwh > 0).round(2)
+    d["cost_score"] = (100 - pct(d.cost_mwh)).round(1)           # 100 = cheapest per MWh
+    return d
+
+
+def scored(cooling: str, weights: dict[str, float], power: str = F["pricing"]["default_power_source"]) -> pd.DataFrame:
+    d = priced(cooling, power).copy()
     tot = sum(weights.values()) or 1
     d["score"] = sum(d[f"{k}_score"] * v for k, v in weights.items()) / tot
     d["score"] = d.score.round(1)
@@ -96,11 +162,12 @@ def scored(cooling: str, weights: dict[str, float]) -> pd.DataFrame:
 
 
 MAP_COLS = ["GEOID", "NAME", "STUSPS", "score", "power_score", "water_score", "land_score",
-            "supportable_mw", "binding", "max_kv"]
+            "supportable_mw", "binding", "max_kv", "cost_mwh", "cost_score"]
+DEF_POWER = F["pricing"]["default_power_source"]
 
 
-def map_layer(cooling: str, weights: dict[str, float]) -> list[dict]:
-    d = scored(cooling, weights)
+def map_layer(cooling: str, weights: dict[str, float], power: str = DEF_POWER) -> list[dict]:
+    d = scored(cooling, weights, power)
     return json.loads(d[MAP_COLS].to_json(orient="records"))
 
 
@@ -111,18 +178,19 @@ def tokens_per_day(mw: float, util: float) -> dict[str, dict[str, float]]:
             for k, c in E["classes"].items()}
 
 
-def detail(geoid: str, cooling: str, weights: dict[str, float]) -> dict:
-    d = scored(cooling, weights)
+def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF_POWER) -> dict:
+    d = scored(cooling, weights, power)
     row = d[d.GEOID == geoid]
     if row.empty:
         raise KeyError(geoid)
     r = json.loads(row.to_json(orient="records"))[0]
     util = F["facility"]["utilization"]
+    C = F["pricing"]
     mw = r["supportable_mw"]
     mwh_year = mw * util * 8760
     per_mw = water_mgd_per_mw(cooling, util) * r["heat_mult"]
-    water_gal_year = mw * per_mw * 1e6 * 365
     price = F["water"]["price_per_kgal_overrides"].get(geoid)
+    src = C["power_sources"][power]
     r |= {
         "rank": int((d.score > r["score"]).sum()) + 1,
         "of": len(d),
@@ -131,10 +199,17 @@ def detail(geoid: str, cooling: str, weights: dict[str, float]) -> dict:
         "cooling_label": F["water"]["cooling"][cooling]["label"],
         "utilization": util,
         "energy_mwh_year": mwh_year,
-        "elec_cost_year": mwh_year * 1000 * (r["elec_ind_c"] or 0) / 100,
+        "power_source": power,
+        "power_source_label": src["label"],
+        "ppa_usd_mwh": src["usd_mwh"],
+        "ppa_delivery_c": sum(C["ppa_delivery_c_per_kwh"]) / 2 if src["usd_mwh"] is not None else None,
+        "elec_cost_year": r["energy_cost_year"],
+        "capacity_where": C["capacity_where"].get(r["ba_fill"]),
+        "sewer_share": C["sewer_share_of_water"],
+        "capital_charge": C["capital_charge"],
+        "land_price_where": (f"{r['STATE_NAME']} farmland, USDA 2026" if not r["land_price_est"]
+                             else "US average farmland, USDA 2026 (state not reported)"),
         "water_mgd_need": mw * per_mw,
-        "water_gal_year": water_gal_year,
-        "water_cost_year": water_gal_year / 1000 * r["water_price"],
         "water_price_source": price["where"] if price else "National default (no local tariff loaded) ⚑",
         "water_share_of_ps": (mw * per_mw / r["ps_mgd"]) if r["ps_mgd"] else None,
         "tokens": tokens_per_day(mw, util),
@@ -145,8 +220,8 @@ def detail(geoid: str, cooling: str, weights: dict[str, float]) -> dict:
 
 
 def top(cooling: str, weights: dict[str, float], n: int = 10, min_mw: float = 0,
-        state: str | None = None) -> list[dict]:
-    d = scored(cooling, weights)
+        state: str | None = None, power: str = DEF_POWER) -> list[dict]:
+    d = scored(cooling, weights, power)
     if state:
         d = d[d.STUSPS == state.upper()]
     d = d[d.supportable_mw >= min_mw].sort_values("score", ascending=False).head(n)

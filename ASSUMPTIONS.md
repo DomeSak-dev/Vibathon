@@ -41,6 +41,22 @@
 | T2 | **Wh per 1,000 output tokens: small 0.3, medium 1.5, large 4.5, with low/high ranges** (PUE included). | The figures are reused from the AI Energy Bill project; see its ASSUMPTIONS.md section C. |
 | T3 | **Tokens are output tokens; all campus energy goes to inference.** | It keeps the headline simple. Training would lower the count. |
 
+## Pricing
+Cost per year = energy + capacity + water and sewer + a yearly charge on the land. Missing inputs stay missing: a county with no electricity rate, or no room for a campus, gets no cost, never $0. All numbers are in `data/siting_factors.json` → `pricing`.
+
+| # | Assumption | Reason |
+|---|---|---|
+| C1 | **Energy = MWh × the state industrial average rate (EIA, Jan–Aug 2026).** | Large campuses buy on industrial or large-load tariffs. A real tariff quote can differ a lot. |
+| C2 ⚑ | **PPA option: solar $60/MWh or wind $70/MWh, plus 2.25¢/kWh for delivery (the midpoint of 1.5–3¢).** | From the LevelTen Q2 2026 index, approximate because the full index is paid. A PPA covers energy only, so delivery is added. |
+| C3 ⚑ | **Capacity: PJM counties pay $333.44/MW-day × campus MW (2027/28 auction, RTO-wide, at the cap). Other grids are assumed to be inside the energy price.** | Source: [PJM, Dec 17 2025](https://insidelines.pjm.com/pjm-auction-procures-134479-mw-of-generation-resources/). MISO, ISO-NE and NYISO run capacity markets too but aren't priced yet. Part of the PJM price is already in 2026 state rates, so this may double count some of it. |
+| C4 ⚑ | **882 counties have no grid operator on file (no generator there). They take the nearest county in the same state that has one.** | Shown as "est." in the app. |
+| C5 ⚑ | **The $6 default water rate is scaled ×0.75 (no stress) to ×1.5 (highest stress). Verified local rates are used as they are.** | Scarce water tends to cost more. A starting guess. |
+| C6 ⚑ | **Sewer is charged on 20% of the water volume, at the water rate.** | Cooling towers discharge part of what they take. |
+| C7 | **Land price = state farm real estate value per acre (USDA NASS Land Values 2026; US average $4,500). Alaska, Hawaii and DC aren't reported and use the US average, flagged.** | The only current national series. County values from NASS Quick Stats would be better. Source: [USDA NASS](https://esmis.nal.usda.gov/sites/default/release-files/795999/land0726.txt). |
+| C8 ⚑ | **Land near big lines costs more: ×1 with no 230 kV+ line, ×10 at 230 kV, ×20 at 345 kV, ×25 at 500 kV.** | Sites near 230–500 kV lines sold for about 2.4× those near 138 kV or lower (Altus Group, 80 deals), and powered land in Northern Virginia sells for $4–6M an acre. This puts rural land near a big line in the six figures per acre. |
+| C9 ⚑ | **Land is bought once and carried at 8% of its price a year.** | A common capital charge. It puts a one-time cost on the same yearly basis as the rest. |
+| C10 | **Cost per MWh = yearly total ÷ MWh at 70% load. The Cost map colors counties by its percentile (lighter = cheaper).** | Per-MWh cost compares counties of different sizes. |
+
 ## Scoring
 | # | Assumption | Reason |
 |---|---|---|

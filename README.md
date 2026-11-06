@@ -3,7 +3,7 @@
 Data center siting for Theme 3 of the Vibathon. Pick a region on a spinning globe, then drill down from country to state to county. The country view colors each state by its best counties; clicking a state shows its counties scored on power (transmission lines), water and land. Click a county to see:
 - the largest campus it could likely host, and what limits it;
 - months to power;
-- yearly power and water cost;
+- yearly cost: energy, capacity, water and sewer, and land (grid rate or a solar or wind PPA);
 - how many AI tokens a day the campus could serve.
 
 Ideas and next steps: [suggestion.md](suggestion.md). Every assumption: [ASSUMPTIONS.md](ASSUMPTIONS.md).
@@ -60,4 +60,8 @@ Land MW    = open acres (from density) × 0.5% ÷ 1 acre per MW
 Campus MW  = min(Power, Water, Land)   → the smallest is the "limiting factor"
 Tokens/day = Campus MW × 70% load × 24 h ÷ Wh per 1,000 output tokens × 1,000
 Scores     = percentiles vs. all US counties; overall = weighted mix (default 45/30/25)
+Cost/year  = MWh × state industrial rate (or PPA + delivery)
+             + PJM capacity $333/MW-day × MW
+             + water and sewer ($6 per 1,000 gal default × 0.75–1.5 by water stress, sewer on 20%)
+             + 8% a year × land (1 acre/MW × state farmland $/acre × 1–25 near big lines)
 ```

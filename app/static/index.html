@@ -53,7 +53,16 @@
   .brand b { font-size: 17px; letter-spacing: -.01em; font-weight: 600; }
   .icon { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border-radius: 8px; color: var(--text-secondary); }
   .sec { margin-top: 26px; }
-  .sec h3 { margin: 0 0 10px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .sec h3 { margin: 0 0 10px; font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; justify-content: space-between; align-items: baseline; }
+  .reset { background: none; border: 0; padding: 0; color: var(--accent); font-size: 12px; cursor: pointer; }
+  .reset[hidden] { display: none; }
+  .v.changed { color: var(--accent); }
+  .warn { color: var(--warning); }
+  .est { font-size: 10px; letter-spacing: .03em; color: var(--text-muted); border: 1px solid var(--line); border-radius: 4px;
+    padding: 0 4px; margin-left: 6px; vertical-align: 1px; font-weight: 500; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #topList, #detail > *, .crumb { transition: opacity .2s ease; }
+  body.busy #topList, body.busy #detail > *:not(.close) { opacity: .45; }
   .seg { display: grid; grid-template-columns: repeat(var(--n, 4), 1fr); background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 3px; }
   .seg button { background: transparent; border: 0; padding: 7px 0; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 13px; }
   .seg button[aria-pressed="true"] { background: var(--text-primary); color: #111; font-weight: 600; }
@@ -137,6 +146,31 @@
   .bars .b.cur .fill { background: #9ec5f4; }
   .bars .b span:last-child { text-align: right; color: var(--text-primary); }
   .note { color: var(--text-muted); font-size: 12px; line-height: 1.5; margin-top: 16px; text-align: center; }
+  .alert { display: flex; gap: 10px; background: #fab21914; border: 1px solid #fab21966; border-radius: 12px;
+    padding: 11px 14px; margin: -6px 0 18px; font-size: 14px; line-height: 1.45; }
+  .why { color: var(--text-muted); font-size: 12px; margin: 10px 2px 0; }
+  .cost-big { font-size: 30px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
+  .stack { display: flex; gap: 2px; height: 8px; margin: 14px 0 8px; }
+  .stack i { display: block; flex: 1 1 0; min-width: 4px; border-radius: 4px; }
+  .stack-key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .stack-key .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .c-power { background: #d95926; } .c-water { background: #3987e5; } .c-land { background: #199e70; }
+  #layerSeg button { font-size: 12.5px; }
+  .factor .s { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
+  ul.next { margin: 0; padding-left: 18px; color: var(--text-primary); line-height: 1.55; }
+  ul.next li + li { margin-top: 4px; }
+  ul.src { margin: 0; padding: 0; list-style: none; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+  ul.src li + li { margin-top: 6px; }
+  ul.src b { color: var(--text-primary); font-weight: 500; }
+  .lnk-i { color: var(--accent); text-decoration: none; }
+  dl.method { margin: 0; font-size: 13px; }
+  dl.method dt { color: var(--text-muted); font-size: 12px; margin-top: 10px; }
+  dl.method dt:first-child { margin-top: 0; }
+  dl.method dd { margin: 2px 0 0; color: var(--text-secondary); line-height: 1.45; }
+  .rng { color: var(--text-muted); font-size: 12px; margin-top: 1px; }
+  .lnk { display: inline-block; margin-top: 12px; color: var(--accent); text-decoration: none; font-size: 13px; }
+  .err { color: var(--critical); }
+  .crumb .err a, .crumb a.retry { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -166,33 +200,39 @@
 
     <div class="sec">
       <h3>Map</h3>
-      <div class="seg" id="layerSeg">
+      <div class="seg" id="layerSeg" style="--n:5">
         <button data-k="score" aria-pressed="true">Overall</button>
         <button data-k="power_score">Power</button>
         <button data-k="water_score">Water</button>
         <button data-k="land_score">Land</button>
+        <button data-k="cost_score">Cost</button>
       </div>
       <div class="legend" style="margin-top:12px">
         <div class="bar" id="legendBar"></div>
-        <div class="ticks"><span>Low</span><span>High</span></div>
+        <div class="ticks" id="legendTicks"><span>Low</span><span>High</span></div>
       </div>
     </div>
 
     <div class="sec">
-      <h3>Priorities</h3>
+      <h3>Priorities <button class="reset" id="resetW" hidden>Reset</button></h3>
       <div class="row">Power<input type="range" id="wp" min="0" max="100" /><span class="v num" id="wpV"></span></div>
       <div class="row">Water<input type="range" id="ww" min="0" max="100" /><span class="v num" id="wwV"></span></div>
       <div class="row">Land<input type="range" id="wl" min="0" max="100" /><span class="v num" id="wlV"></span></div>
     </div>
 
     <div class="sec">
-      <h3>Minimum size</h3>
+      <h3>Minimum size <button class="reset" id="resetMin" hidden>Reset</button></h3>
       <div class="row"><input type="range" id="minMw" min="0" max="1000" step="25" value="0" /><span class="v num" id="minMwV">Any</span></div>
     </div>
 
     <div class="sec">
-      <h3>Cooling</h3>
+      <h3>Cooling <button class="reset" id="resetC" hidden>Reset</button></h3>
       <div class="seg" id="coolSeg" style="--n:3"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Power price <button class="reset" id="resetP" hidden>Reset</button></h3>
+      <div class="seg" id="powerSeg" style="--n:3"></div>
     </div>
 
     <div class="sec">
@@ -206,7 +246,7 @@
 
     <div class="sec">
       <h3 id="topTitle">Top states</h3>
-      <ol class="top" id="topList"></ol>
+      <ol class="top" id="topList" aria-live="polite"></ol>
     </div>
   </aside>
 
@@ -228,15 +268,28 @@ const fmt = d3.format(",.0f");
 const fmtMW = v => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + " GW" : fmt(v) + " MW";
 const fmtMoney = v => v >= 1e9 ? "$" + (v / 1e9).toFixed(2) + "B" : v >= 1e6 ? "$" + (v / 1e6).toFixed(1) + "M" : "$" + fmt(v);
 const fmtTok = v => v >= 1e15 ? (v / 1e15).toFixed(1) + " quadrillion" : v >= 1e12 ? (v / 1e12).toFixed(1) + " trillion" : (v / 1e9).toFixed(1) + " billion";
-const LAYER_NAME = { score: "Overall", power_score: "Power", water_score: "Water", land_score: "Land" };
+const LAYER_NAME = { score: "Overall", power_score: "Power", water_score: "Water", land_score: "Land", cost_score: "Cost" };
 const COOL_NAME = { evaporative: "Evaporative", hybrid: "Hybrid", closed_loop: "Dry" };
+const SRC_NAME = { transmission: "Power lines", generation: "Generation", water: "Water use", climate: "Climate", population: "Population",
+  land: "Land area", price: "Electricity price", tokens: "Tokens", capacity: "Capacity price", ppa: "PPA price", land_price: "Land price",
+  land_premium: "Land premium" };
+// A county under this size can't host a large campus, whatever its score. Shown as a warning, never hidden by the score.
+let MIN_VIABLE = 100;   // replaced by facility.min_viable_mw from /api/config
+function blockers(r) {
+  const b = [];
+  if (r.supportable_mw < MIN_VIABLE) b.push(`Under ${MIN_VIABLE} MW. Too small for a large campus.`);
+  if (!r.max_kv) b.push("No 230 kV+ line. A new line takes 5–8 years.");
+  return b;
+}
+const warnMW = r => r.supportable_mw < MIN_VIABLE || !r.max_kv
+  ? `<span class="warn" title="${blockers(r).join(" ")}">⚠ ${fmtMW(r.supportable_mw)}</span>` : fmtMW(r.supportable_mw);
 const coolName = k => COOL_NAME[k] || CFG.cooling[k].label.split(" (")[0];
 // sequential blue ramp, dark surface: low recedes toward the surface, high is light
 const RAMP = ["#0d366b", "#104281", "#184f95", "#1c5cab", "#256abf", "#2a78d6", "#3987e5", "#5598e7", "#6da7ec", "#86b6ef", "#9ec5f4", "#b7d3f6", "#cde2fb"];
 const color = d3.scaleQuantize([0, 100], RAMP);
 $("#legendBar").style.background = `linear-gradient(90deg, ${RAMP.join(",")})`;
 
-const state = { layer: "score", minMw: 0, cooling: null, w: {}, rows: new Map(), sel: null,
+const state = { layer: "score", minMw: 0, cooling: null, power: null, w: {}, rows: new Map(), sel: null,
   view: "country", st: null, stAgg: new Map() };   // view: "country" (states) -> "state" (its counties)
 const ABBR = new Map();  // state FIPS -> postal code, filled from the county rows
 let CFG;
@@ -364,66 +417,80 @@ function aggregateStates() {
   const raw = [];
   for (const [fips, rs] of by) {
     ABBR.set(fips, rs[0].STUSPS);
-    const vals = rs.map(r => r[state.layer]).sort((a, b) => b - a);
-    const q = vals.slice(0, Math.max(1, Math.ceil(vals.length / 4)));
+    // missing values are left out, never counted as zero
+    const ranked = rs.filter(r => r[state.layer] != null).sort((a, b) => b[state.layer] - a[state.layer]);
+    const q = ranked.slice(0, Math.max(1, Math.ceil(ranked.length / 4)));
     const best = rs.reduce((a, b) => (b.score > a.score ? b : a));
-    const minHost = Math.max(state.minMw, 250);
-    raw.push({ fips, v: d3.mean(q), n: rs.length, best, minHost,
-      nHost: rs.filter(r => r.supportable_mw >= minHost).length,
-      nOk: rs.filter(r => r.supportable_mw >= state.minMw).length });
+    raw.push({ fips, v: q.length ? d3.mean(q, r => r[state.layer]) : null, costMwh: d3.mean(q, r => r.cost_mwh),
+      n: rs.length, best, nOk: rs.filter(r => r.supportable_mw >= state.minMw).length });
   }
   // rank among states (0 = weakest, 100 = strongest) so colors spread evenly
-  const order = raw.map(d => d.v).sort((a, b) => a - b);
-  const rank = v => (d3.bisectLeft(order, v) / Math.max(1, order.length - 1)) * 100;
+  const order = raw.filter(d => d.v != null).map(d => d.v).sort((a, b) => a - b);
+  const rank = v => v == null ? null : (d3.bisectLeft(order, v) / Math.max(1, order.length - 1)) * 100;
   state.stAgg = new Map(raw.map(d => [d.fips, { ...d, rank: rank(d.v) }]));
 }
 
 function paint() {
   aggregateStates();
+  saveHash();
+  $("#legendTicks").innerHTML = state.layer === "cost_score" ? "<span>Higher cost</span><span>Lower cost</span>" : "<span>Low</span><span>High</span>";
   const country = state.view === "country";
   stFillG.selectAll("path")
-    .attr("fill", d => { const a = state.stAgg.get(d.id); return a ? color(a.rank) : "#262624"; })
+    .attr("fill", d => { const a = state.stAgg.get(d.id); return a && a.rank != null ? color(a.rank) : "#262624"; })
     .classed("dim", d => { const a = state.stAgg.get(d.id); return country && (!a || a.nOk === 0); })
     .classed("ctx", d => !country && d.id !== state.st)
     .classed("cur", d => !country && d.id === state.st);
   if (country) return;
   countyG.selectAll("path")
-    .attr("fill", d => { const r = state.rows.get(d.properties.GEOID); return r ? color(r[state.layer]) : "#262624"; })
+    .attr("fill", d => { const r = state.rows.get(d.properties.GEOID); return r && r[state.layer] != null ? color(r[state.layer]) : "#262624"; })
     .classed("dim", d => { const r = state.rows.get(d.properties.GEOID); return !r || r.supportable_mw < state.minMw; })
     .classed("sel", d => d.properties.GEOID === state.sel);
 }
 
 function q() {
-  const p = new URLSearchParams({ cooling: state.cooling, wp: state.w.power, ww: state.w.water, wl: state.w.land });
+  const p = new URLSearchParams({ cooling: state.cooling, power: state.power, wp: state.w.power, ww: state.w.water, wl: state.w.land });
   return p.toString();
 }
 
-let reloadT;
+let reloadT, reloadSeq = 0, deepLink = null;
+const getJSON = url => fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 async function reload() {
   clearTimeout(reloadT);
+  document.body.classList.add("busy"); renderCrumb();
   reloadT = setTimeout(async () => {
-    const rows = await fetch("/api/map?" + q()).then(r => r.json());
-    state.rows = new Map(rows.map(r => [r.GEOID, r]));
-    await mapReady;
-    paint();
-    await renderTop();
-    if (state.sel && $("#detail").classList.contains("open")) openCounty(state.sel);
+    const seq = ++reloadSeq;
+    try {
+      const rows = await getJSON("/api/map?" + q());
+      if (seq !== reloadSeq) return;
+      state.rows = new Map(rows.map(r => [r.GEOID, r]));
+      await mapReady;
+      if (deepLink) { const d = deepLink; deepLink = null; enterApp(); paint();
+        if (d.st && state.stAgg.has(d.st)) d.co && state.rows.has(d.co) ? openCounty(d.co, true) : enterState(d.st); }
+      paint();
+      await renderTop();
+      if (state.sel && $("#detail").classList.contains("open")) await openCounty(state.sel);
+      if (seq === reloadSeq) { document.body.classList.remove("busy"); state.err = null; renderCrumb(); }
+    } catch (e) {
+      if (seq !== reloadSeq) return;
+      document.body.classList.remove("busy"); state.err = "Couldn’t update."; renderCrumb();
+    }
   }, 120);
 }
 
 async function renderTop() {
   if (state.view === "country") {
-    $("#topTitle").textContent = "Top states";
-    const top = [...state.stAgg.values()].filter(a => a.nOk > 0).sort((a, b) => b.v - a.v).slice(0, 10);
-    $("#topList").innerHTML = top.map(a => `<li data-s="${a.fips}"><span>${stateName(a.fips)}</span><span class="s num">${fmtMW(a.best.supportable_mw)}</span><b class="num">${a.v.toFixed(0)}</b></li>`).join("");
+    const cost = state.layer === "cost_score";
+    $("#topTitle").textContent = cost ? "Lowest cost states" : "Top states";
+    const top = [...state.stAgg.values()].filter(a => a.nOk > 0 && a.v != null).sort((a, b) => b.v - a.v).slice(0, 10);
+    $("#topList").innerHTML = top.map(a => `<li data-s="${a.fips}" tabindex="0" role="button"><span>${stateName(a.fips)}</span><span class="s num">${warnMW(a.best)}</span><b class="num" ${cost ? 'title="Average cost per MWh, cheapest quarter of counties"' : ""}>${cost ? "$" + a.costMwh.toFixed(0) : a.v.toFixed(0)}</b></li>`).join("");
     document.querySelectorAll("#topList li").forEach(li => li.onclick = () => enterState(li.dataset.s));
   } else {
     const fips = state.st;
     $("#topTitle").textContent = `Top in ${stateName(fips)}`;
-    const top = await fetch(`/api/top?n=10&min_mw=${state.minMw}&state=${ABBR.get(fips)}&` + q()).then(r => r.json());
+    const top = await getJSON(`/api/top?n=10&min_mw=${state.minMw}&state=${ABBR.get(fips)}&` + q());
     if (state.st !== fips) return;
     $("#topList").innerHTML = top.length
-      ? top.map(t => `<li data-g="${t.GEOID}"><span>${t.NAME}</span><span class="s num">${fmtMW(t.supportable_mw)}</span><b class="num">${t.score.toFixed(0)}</b></li>`).join("")
+      ? top.map(t => `<li data-g="${t.GEOID}" tabindex="0" role="button"><span>${t.NAME}</span><span class="s num">${warnMW(t)}</span><b class="num">${t.score.toFixed(0)}</b></li>`).join("")
       : `<li style="cursor:default"><span></span><span class="s">None at ${fmtMW(state.minMw)}</span></li>`;
     document.querySelectorAll("#topList li[data-g]").forEach(li => li.onclick = () => openCounty(li.dataset.g, true));
   }
@@ -436,8 +503,11 @@ const stateName = f => STATE_NAMES.get(f) || ABBR.get(f) || f;
 function renderCrumb() {
   $("#crumb").innerHTML = state.view === "country"
     ? `<b>United States</b>`
-    : `<a id="cUS">United States</a> › <b>${stateName(state.st)}</b>`;
-  if ($("#cUS")) $("#cUS").onclick = toCountry;
+    : `<a id="cUS" href="#" role="button">United States</a> › <b>${stateName(state.st)}</b>`;
+  if (state.err) $("#crumb").innerHTML += ` · <span class="err">${state.err}</span> <a class="retry" id="cRetry" href="#">Retry</a>`;
+  else if (document.body.classList.contains("busy") && state.rows.size) $("#crumb").innerHTML += ` · Updating…`;
+  if ($("#cUS")) $("#cUS").onclick = e => { e.preventDefault(); toCountry(); };
+  if ($("#cRetry")) $("#cRetry").onclick = e => { e.preventDefault(); reload(); };
 }
 
 function fitTo(feature, pad = 0.85, dur = 900) {
@@ -472,8 +542,8 @@ function showStateTip(e, d) {
   if (state.view === "state" && d.id === state.st) return;
   const a = state.stAgg.get(d.id); if (!a) return;
   placeTip(e, `<div class="t">${stateName(d.id)}</div>
-    <div class="r">${LAYER_NAME[state.layer]}<b class="num">${a.v.toFixed(0)}</b></div>
-    <div class="r">Best<b>${a.best.NAME} · ${fmtMW(a.best.supportable_mw)}</b></div>`);
+    <div class="r">${state.layer === "cost_score" ? "Cost, cheapest quarter" : LAYER_NAME[state.layer]}<b class="num">${a.v == null ? "No data" : state.layer === "cost_score" ? "$" + a.costMwh.toFixed(0) + "/MWh" : a.v.toFixed(0)}</b></div>
+    <div class="r">Best<b>${a.best.NAME} · ${warnMW(a.best)}</b></div>`);
 }
 
 function placeTip(e, html) {
@@ -487,11 +557,15 @@ function placeTip(e, html) {
 }
 
 function showTip(e, d) {
-  const r = state.rows.get(d.properties.GEOID); if (!r) return;
+  const r = state.rows.get(d.properties.GEOID);
+  if (!r) return placeTip(e, `<div class="t">${d.properties.NAME || "County"}</div><div class="r">No data</div>`);
+  const blk = blockers(r);
   placeTip(e, `<div class="t">${r.NAME}, ${r.STUSPS}</div>
-    <div class="r">${LAYER_NAME[state.layer]}<b class="num">${r[state.layer].toFixed(0)}</b></div>
+    ${state.layer !== "cost_score" ? `<div class="r">${LAYER_NAME[state.layer]}<b class="num">${r[state.layer].toFixed(0)}</b></div>` : ""}
     <div class="r">Capacity<b class="num">${fmtMW(r.supportable_mw)}</b></div>
-    <div class="r">Limit<b>${cap(r.binding)}</b></div>`);
+    <div class="r">Cost<b class="num">${r.cost_mwh != null ? "$" + r.cost_mwh.toFixed(0) + "/MWh" : "No data"}</b></div>
+    <div class="r">Limit<b>${cap(r.binding)}</b></div>
+    ${blk.length ? `<div class="r warn" style="margin-top:4px">⚠ ${blk[0]}</div>` : ""}`);
 }
 
 function zoomToCounty(g) {
@@ -506,103 +580,232 @@ function zoomToCounty(g) {
 }
 
 /* =============================== DETAIL =============================== */
+let detailSeq = 0;
 async function openCounty(g, fly = false) {
   if (state.view !== "state" || state.st !== g.slice(0, 2)) enterState(g.slice(0, 2));
   state.sel = g; paint();
   if (fly) zoomToCounty(g);
-  const r = await fetch(`/api/county/${g}?` + q()).then(x => x.json());
+  const seq = ++detailSeq;
+  let r;
+  try { r = await getJSON(`/api/county/${g}?` + q()); }
+  catch (e) {
+    if (seq !== detailSeq) return;
+    $("#detail").innerHTML = `<button class="close" aria-label="Close" onclick="closeDetail()">✕</button>
+      <h2>Couldn’t load this county</h2><p class="sub">Check the connection and try again.</p>
+      <button class="btn" onclick="openCounty('${g}')">Retry</button>`;
+    $("#detail").classList.add("open"); return;
+  }
+  if (seq !== detailSeq || state.sel !== g) return;
   const t = r.tokens, maxCool = Math.max(...Object.values(r.all_cooling), 1);
-  const factor = (k, label, mw, score) => `
+  const defaultWaterRate = /^National default/.test(r.water_price_source || "");
+  const waterEst = r.water_est || !r.ps_mgd;
+  const tot = (state.w.power + state.w.water + state.w.land) || 1, share = k => Math.round(state.w[k] / tot * 100);
+  const factor = (k, label, mw, score, tag) => `
     <div class="factor ${r.binding === k ? "bind" : ""}">
-      <div class="k">${label}${r.binding === k ? "<b>Limit</b>" : ""}</div><div class="m num">${fmtMW(mw)}</div>
-      <div class="meter"><i style="width:${score}%"></i></div>
+      <div class="k">${label}${r.binding === k ? "<b>Limit</b>" : tag || ""}</div><div class="m num">${fmtMW(mw)}</div>
+      <div class="meter" role="img" aria-label="${label} score ${score.toFixed(0)} of 100"><i style="width:${score}%"></i></div>
+      <div class="s num">Score ${score.toFixed(0)}</div>
     </div>`;
-  const mix = (r.planned_mix || []).map(([tech, mw]) => `${tech} ${fmt(mw)} MW`).join("<br>") || "None";
+  const next = [];
+  if (r.binding === "power" || !r.max_kv) next.push(`Interconnection queue and upgrade cost with ${r.ba || "the grid operator"}`);
+  else next.push(`Free line capacity with ${r.ba || "the grid operator"}. Contracted capacity isn’t in this data.`);
+  if (r.binding === "water" || waterEst) next.push(r.ps_mgd ? "A water supply commitment from the local utility" : "Whether any public water supply exists. None is reported.");
+  if (defaultWaterRate) next.push(`The local water rate. A $${r.water_price.toFixed(2)} default is used.`);
+  if (r.binding === "land") next.push("Large parcels for sale. Open land is estimated from density.");
+  next.push(r.ppa_usd_mwh != null ? "A PPA offer and the utility’s delivery charge. Both prices here are approximate."
+    : "A large-load tariff from the utility. The state average rate is used.");
+  const isPPA = r.ppa_usd_mwh != null;
+  const parts = [["power", "Power", (r.energy_cost_year ?? 0) + (r.capacity_cost_year ?? 0)],
+    ["water", "Water", r.water_cost_year + r.sewer_cost_year], ["land", "Land", r.land_cost_year]];
+  const partTot = d3.sum(parts, p => p[2]) || 1;
+  const pctTxt = v => { const x = v / partTot * 100; return x > 0 && x < 1 ? "<1%" : Math.round(x) + "%"; };
+  const kvName = { "500": "500 kV", "345": "345 kV", "230": "230 kV", "0": "no 230 kV+ line" }[r.kv_tier];
+  const costCard = r.total_cost_year == null || !r.supportable_mw ? `
+    <div class="card">
+      <h4>Cost per year</h4>
+      <div class="sub">${!r.supportable_mw ? "No campus fits here, so there is nothing to price." : "No data. The electricity rate for this state is missing."}</div>
+    </div>` : `
+    <div class="card">
+      <h4>Cost per year<span class="est">Est.</span></h4>
+      <div class="cost-big">${fmtMoney(r.total_cost_year)}</div>
+      <div class="rng num">$${r.cost_mwh.toFixed(0)} per MWh · ${r.power_source_label}</div>
+      <div class="stack" role="img" aria-label="${parts.map(p => `${p[1]} ${pctTxt(p[2])}`).join(", ")}">${parts.filter(p => p[2] > 0).map(p => `<i class="c-${p[0]}" style="flex-grow:${p[2]}" title="${p[1]} ${fmtMoney(p[2])} (${pctTxt(p[2])})"></i>`).join("")}</div>
+      <div class="stack-key">${parts.map(p => `<span><i class="dot c-${p[0]}"></i>${p[1]} ${pctTxt(p[2])}</span>`).join("")}</div>
+      <table class="kv">
+        <tr><td>Energy<div class="rng">${isPPA
+          ? `${r.power_source_label} $${r.ppa_usd_mwh}/MWh + ${r.ppa_delivery_c}¢/kWh delivery (approx.)`
+          : `${r.elec_ind_c.toFixed(2)}¢/kWh · ${r.STATE_NAME} industrial average`}</div></td><td class="num">${fmtMoney(r.energy_cost_year)}</td></tr>
+        <tr><td>Capacity<div class="rng">${r.capacity_cost_year != null
+          ? `${r.capacity_where} · $${r.capacity_usd_mw_day.toFixed(0)}/MW-day${r.ba_est ? " · grid operator est." : ""}`
+          : `Not priced separately. Assumed inside the ${isPPA ? "delivery charge" : "state rate"}.`}</div></td><td class="num">${r.capacity_cost_year != null ? fmtMoney(r.capacity_cost_year) : "—"}</td></tr>
+        <tr><td>Water and sewer<div class="rng">$${r.water_rate.toFixed(2)} / 1,000 gal · ${r.water_rate_local
+          ? r.water_price_source : `$${r.water_price.toFixed(2)} default × ${r.water_mult.toFixed(2)} for stress`} · sewer on ${Math.round(r.sewer_share * 100)}%</div></td><td class="num">${fmtMoney(r.water_cost_year + r.sewer_cost_year)}</td></tr>
+        <tr><td>Land<div class="rng">${Math.round(r.capital_charge * 100)}% a year of ${fmtMoney(r.land_cost)} · ${fmt(r.land_acres)} acres × $${fmt(r.land_usd_acre)} × ${r.land_premium} (${kvName})${r.land_price_est ? " · US average" : ""}</div></td><td class="num">${fmtMoney(r.land_cost_year)}</td></tr>
+      </table>
+    </div>`;
+  const blk = blockers(r);
+  const mix = (r.planned_mix || []).map(([tech, mw]) => `${tech} ${fmt(mw)} MW`).join("<br>") || "None reported";
   const county = `${r.NAME}${/County|Parish|Borough|city/i.test(r.NAME) ? "" : " County"}`;
+  const src = CFG.sources || {};
   $("#detail").innerHTML = `
     <button class="close" aria-label="Close" onclick="closeDetail()">✕</button>
     <div class="sub num">${r.STATE_NAME} · #${fmt(r.rank)} of ${fmt(r.of)}</div>
     <h2>${county}</h2>
 
     <div class="hero">
+      <div class="sub">Estimated capacity</div>
       <div class="big num">${fmtMW(r.supportable_mw)}</div>
-      <div class="line">${cap(r.binding)}-limited · Power in ${r.months_lo}–${r.months_hi} months</div>
+      <div class="line">${cap(r.binding)}-limited · Power in ${r.months_lo}–${r.months_hi} months<span class="est">Est.</span></div>
     </div>
+    ${blk.map(b => `<div class="alert" role="alert"><span class="warn" aria-hidden="true">⚠</span><span>${b}</span></div>`).join("")}
 
     <div class="factors">
       ${factor("power", "Power", r.power_mw, r.power_score)}
-      ${factor("water", "Water", r.water_mw, r.water_score)}
-      ${factor("land", "Land", r.land_mw, r.land_score)}
+      ${factor("water", "Water", r.water_mw, r.water_score, waterEst ? `<span class="est">${r.ps_mgd ? "Est." : "No data"}</span>` : "")}
+      ${factor("land", "Land", r.land_mw, r.land_score, `<span class="est">Est.</span>`)}
+    </div>
+    <div class="why num">Overall score ${r.score.toFixed(0)}, weighted power ${share("power")}% · water ${share("water")}% · land ${share("land")}%</div>
+
+    ${costCard}
+
+    <div class="card">
+      <h4>Check next</h4>
+      <ul class="next">${next.slice(0, 3).map(n => `<li>${n}</li>`).join("")}</ul>
     </div>
 
     <div class="card">
-      <h4>Tokens per day</h4>
-      <table class="kv">${["small", "medium", "large"].map(k => `<tr><td title="${t[k].examples}">${t[k].label.replace(" model", "")}</td><td class="num">${fmtTok(t[k].typical)}</td></tr>`).join("")}</table>
-    </div>
-
-    <div class="card">
-      <h4>Cost per year</h4>
-      <table class="kv">
-        <tr><td>Electricity</td><td class="num">${fmtMoney(r.elec_cost_year)}</td></tr>
-        <tr><td>Water</td><td class="num">${fmtMoney(r.water_cost_year)}</td></tr>
-      </table>
+      <h4>Tokens per day<span class="est">Est.</span></h4>
+      <table class="kv">${["small", "medium", "large"].map(k => `<tr><td title="${t[k].examples}">${t[k].label.replace(" model", "")}</td><td class="num">${fmtTok(t[k].typical)}<div class="rng">${fmtTok(t[k].high)} – ${fmtTok(t[k].low)}</div></td></tr>`).join("")}</table>
     </div>
 
     <div class="card">
       <h4>Water limit by cooling</h4>
-      <div class="bars">${Object.entries(r.all_cooling).map(([c, mw]) => `<div class="b ${c === r.cooling ? "cur" : ""}"><span>${coolName(c)}</span><div class="track"><div class="fill" style="width:${Math.max(2, mw / maxCool * 100)}%"></div></div><span class="num">${fmtMW(mw)}</span></div>`).join("")}</div>
+      <div class="bars">${Object.entries(r.all_cooling).map(([c, mw]) => `<div class="b ${c === r.cooling ? "cur" : ""}"><span>${coolName(c)}${c === r.cooling ? " ✓" : ""}</span><div class="track"><div class="fill" style="width:${Math.max(2, mw / maxCool * 100)}%"></div></div><span class="num">${fmtMW(mw)}</span></div>`).join("")}</div>
     </div>
 
     <details class="card">
-      <summary>Details</summary>
+      <summary>Data</summary>
       <table class="kv">
-        <tr><td>Grid operator</td><td>${r.ba || "n/a"}</td></tr>
+        <tr><td>Grid operator</td><td>${r.ba || (r.ba_fill ? r.ba_fill + " (est. from nearest county)" : "Unknown")}</td></tr>
         <tr><td>Highest line</td><td class="num">${r.max_kv ? r.max_kv + " kV" : "Under 230 kV"}</td></tr>
         <tr><td>Lines 500 / 345 / 230 kV</td><td class="num">${fmt(r.km_500)} / ${fmt(r.km_345)} / ${fmt(r.km_230)} km</td></tr>
         <tr><td>Generation today</td><td class="num">${fmtMW(r.gen_mw)}</td></tr>
         <tr><td>Planned by 2029</td><td class="num">${fmtMW(r.planned_mw)}</td></tr>
         <tr><td>Planned mix</td><td>${mix}</td></tr>
         <tr><td>Retiring by 2030</td><td class="num">${fmtMW(r.retire_mw)}</td></tr>
-        <tr><td>Public water supply</td><td class="num">${r.ps_mgd.toFixed(1)} Mgal/day${r.water_est ? " (est.)" : ""}</td></tr>
+        <tr><td>Public water supply</td><td class="num">${r.ps_mgd ? r.ps_mgd.toFixed(1) + " Mgal/day" : "None reported"}${r.water_est ? " (est. from state)" : ""}</td></tr>
         <tr><td>Water stress</td><td class="num">${r.water_stress.toFixed(0)} / 100</td></tr>
-        <tr><td>Open land</td><td class="num">${fmt(r.open_acres)} acres</td></tr>
+        <tr><td>Open land</td><td class="num">${fmt(r.open_acres)} acres (est.)</td></tr>
         <tr><td>Population</td><td class="num">${fmt(r.pop)}</td></tr>
-        <tr><td>Electricity rate</td><td class="num">${r.elec_ind_c ? r.elec_ind_c.toFixed(2) + "¢/kWh" : "n/a"}</td></tr>
-        <tr><td>Water rate</td><td class="num">$${r.water_price.toFixed(2)} / 1,000 gal</td></tr>
-        <tr><td>Load</td><td class="num">${Math.round(r.utilization * 100)}%</td></tr>
       </table>
+    </details>
+
+    <details class="card">
+      <summary>Inputs and method</summary>
+      <dl class="method">
+        <dt>Your inputs</dt><dd>Priorities ${state.w.power} / ${state.w.water} / ${state.w.land} · ${coolName(r.cooling)} cooling, ${CFG.cooling[r.cooling].l_per_kwh} L/kWh · ${r.power_source_label} power</dd>
+        <dt>Capacity</dt><dd>The smallest of power, water and land, at ${Math.round(r.utilization * 100)}% average load.</dd>
+        <dt>Scores</dt><dd>Percentiles against all US counties, weighted by your priorities.</dd>
+        <dt>Energy</dt><dd>${r.ppa_usd_mwh != null ? `${r.power_source_label} at $${r.ppa_usd_mwh}/MWh plus ${r.ppa_delivery_c}¢/kWh delivery. Both approximate.` : "State industrial average rate (EIA, Jan–Aug 2026)."}</dd>
+        <dt>Capacity charge</dt><dd>PJM counties only, $${CFG.pricing.capacity_usd_per_mw_day.PJM}/MW-day (2027/28 auction). Elsewhere it is assumed inside the energy price. Part of it may already be in PJM state rates.</dd>
+        <dt>Water and sewer</dt><dd>$${CFG.water_price_default.toFixed(2)} per 1,000 gal default, × ${CFG.pricing.water_stress_multiplier.join(" to ")} by water stress. Sewer on ${Math.round(CFG.pricing.sewer_share_of_water * 100)}% of the water. Verified local rates are used as they are.</dd>
+        <dt>Land</dt><dd>${CFG.acres_per_mw} acre per MW × state farmland value (USDA 2026) × a premium near big lines: ${["500", "345", "230", "0"].map(k => `×${CFG.pricing.land_premium_by_kv[k]} at ${k === "0" ? "none" : k + " kV"}`).join(", ")}. Carried at ${Math.round(CFG.pricing.capital_charge * 100)}% a year.</dd>
+      </dl>
+      <h4 style="margin-top:14px">Sources</h4>
+      <ul class="src">${Object.entries(src).map(([k, v]) => {
+        const url = (v.match(/https?:\/\/\S+$/) || [])[0], text = url ? v.slice(0, v.length - url.length).replace(/[,\s]+$/, "") : v;
+        return `<li><b>${SRC_NAME[k] || cap(k)}</b> ${text}${url ? ` <a class="lnk-i" href="${url}" target="_blank" rel="noopener" aria-label="Open source">↗</a>` : ""}</li>`;
+      }).join("")}</ul>
+      <a class="lnk" href="https://github.com/DomeSak-dev/Vibathon/blob/main/ASSUMPTIONS.md" target="_blank" rel="noopener">All assumptions ↗</a>
     </details>
     <div class="note">Screening estimate. Not an interconnection study.</div>`;
   $("#detail").classList.add("open");
 }
-function closeDetail() { $("#detail").classList.remove("open"); state.sel = null; paint(); }
+function closeDetail() { $("#detail").classList.remove("open"); state.sel = null; detailSeq++; paint(); }
 function goUp() {  // Esc: close the panel first, then step back up a level
   if ($("#detail").classList.contains("open")) closeDetail();
   else if (state.view === "state") toCountry();
 }
 
 /* =============================== WIRING =============================== */
-async function init() {
-  CFG = await fetch("/api/config").then(r => r.json());
-  $("#regionSel").innerHTML = CFG.regions.map(r => `<option value="${r.id}" ${r.ready ? "" : "disabled"}>${r.label}</option>`).join("");
-  state.cooling = CFG.default_cooling;
-  $("#coolSeg").innerHTML = Object.entries(CFG.cooling).map(([k, c]) => `<button data-c="${k}" title="${c.label} · ${c.l_per_kwh} L/kWh" aria-pressed="${k === state.cooling}">${coolName(k)}</button>`).join("");
-  document.querySelectorAll("#coolSeg button").forEach(b => b.onclick = () => {
-    document.querySelectorAll("#coolSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
-    state.cooling = b.dataset.c; reload();
-  });
+/* ----- inputs: shareable link, overrides, reset ----- */
+function saveHash() {
+  if (!CFG) return;
+  const p = new URLSearchParams({ w: [state.w.power, state.w.water, state.w.land].join(","), c: state.cooling, p: state.power, min: state.minMw, map: state.layer });
+  if (state.st && $("#app").classList.contains("on")) p.set("st", state.st);
+  if (state.sel) p.set("co", state.sel);
+  history.replaceState(null, "", "#" + p.toString().replaceAll("%2C", ","));
+  markOverrides();
+}
+function readHash() {
+  const p = new URLSearchParams(location.hash.slice(1)), out = {};
+  const w = (p.get("w") || "").split(",").map(Number);
+  if (w.length === 3 && w.every(v => v >= 0 && v <= 100)) out.w = { power: w[0], water: w[1], land: w[2] };
+  if (CFG.cooling[p.get("c")]) out.c = p.get("c");
+  if (CFG.pricing.power_sources[p.get("p")]) out.p = p.get("p");
+  if (+p.get("min") >= 0 && +p.get("min") <= 1000) out.min = +p.get("min");
+  if (LAYER_NAME[p.get("map")]) out.map = p.get("map");
+  if (/^\d{2}$/.test(p.get("st") || "")) out.st = p.get("st");
+  if (/^\d{5}$/.test(p.get("co") || "")) out.co = p.get("co");
+  return out;
+}
+const DEF_W = () => Object.fromEntries(Object.entries(CFG.weights).map(([k, v]) => [k, Math.round(v * 100)]));
+function markOverrides() {
+  const dw = DEF_W(), tot = (state.w.power + state.w.water + state.w.land) || 1;
+  let wChanged = false;
   for (const [k, id] of [["power", "wp"], ["water", "ww"], ["land", "wl"]]) {
-    state.w[k] = Math.round(CFG.weights[k] * 100);
-    const el = $("#" + id); el.value = state.w[k]; $("#" + id + "V").textContent = state.w[k];
-    el.oninput = () => { state.w[k] = +el.value; $("#" + id + "V").textContent = el.value; reload(); };
+    const ch = state.w[k] !== dw[k]; wChanged ||= ch;
+    $("#" + id).value = state.w[k];
+    const v = $("#" + id + "V"); v.textContent = Math.round(state.w[k] / tot * 100) + "%"; v.classList.toggle("changed", ch);
   }
-  $("#minMw").oninput = e => { state.minMw = +e.target.value; $("#minMwV").textContent = state.minMw ? fmtMW(state.minMw) : "Any"; paint(); reload(); };
+  $("#resetW").hidden = !wChanged;
+  $("#minMw").value = state.minMw;
+  $("#minMwV").textContent = state.minMw ? fmtMW(state.minMw) : "Any";
+  $("#minMwV").classList.toggle("changed", state.minMw !== 0);
+  $("#resetMin").hidden = state.minMw === 0;
+  $("#resetC").hidden = state.cooling === CFG.default_cooling;
+  $("#resetP").hidden = state.power === CFG.default_power;
+  document.querySelectorAll("#powerSeg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.p === state.power));
+  document.querySelectorAll("#coolSeg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.c === state.cooling));
+  document.querySelectorAll("#layerSeg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.k === state.layer));
+}
+function enterApp() {
+  spin && spin.stop();
+  $("#app").classList.add("on"); $("#intro").classList.add("gone");
+}
+
+async function init() {
+  try { CFG = await getJSON("/api/config"); }
+  catch (e) { $(".lede").innerHTML = `<span class="err">Couldn’t reach the server.</span> <a class="lnk" href="">Retry</a>`; $("#goBtn").disabled = true; return; }
+  $("#regionSel").innerHTML = CFG.regions.map(r => `<option value="${r.id}" ${r.ready ? "" : "disabled"}>${r.label}</option>`).join("");
+  const h = readHash();
+  MIN_VIABLE = CFG.facility.min_viable_mw ?? MIN_VIABLE;
+  state.cooling = h.c || CFG.default_cooling;
+  state.power = h.p || CFG.default_power;
+  state.w = h.w || DEF_W();
+  state.minMw = h.min || 0;
+  state.layer = h.map || "score";
+  if (h.st) deepLink = h;
+  $("#coolSeg").innerHTML = Object.entries(CFG.cooling).map(([k, c]) => `<button data-c="${k}" title="${c.label} · ${c.l_per_kwh} L/kWh">${coolName(k)}</button>`).join("");
+  document.querySelectorAll("#coolSeg button").forEach(b => b.onclick = () => { state.cooling = b.dataset.c; markOverrides(); reload(); });
+  for (const [k, id] of [["power", "wp"], ["water", "ww"], ["land", "wl"]])
+    $("#" + id).oninput = e => { state.w[k] = +e.target.value; markOverrides(); reload(); };
+  $("#minMw").oninput = e => { state.minMw = +e.target.value; paint(); reload(); };
+  $("#resetW").onclick = () => { state.w = DEF_W(); markOverrides(); reload(); };
+  $("#resetMin").onclick = () => { state.minMw = 0; paint(); reload(); };
+  $("#resetC").onclick = () => { state.cooling = CFG.default_cooling; markOverrides(); reload(); };
+  $("#powerSeg").innerHTML = Object.entries(CFG.pricing.power_sources).map(([k, c]) => `<button data-p="${k}" title="${c.usd_mwh == null ? "State industrial average rate" : "$" + c.usd_mwh + "/MWh, approximate, plus delivery"}">${c.label}</button>`).join("");
+  document.querySelectorAll("#powerSeg button").forEach(b => b.onclick = () => { state.power = b.dataset.p; markOverrides(); reload(); });
+  $("#resetP").onclick = () => { state.power = CFG.default_power; markOverrides(); reload(); };
+  markOverrides();
   document.querySelectorAll("#layerSeg button").forEach(b => b.onclick = () => {
-    document.querySelectorAll("#layerSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
     state.layer = b.dataset.k; paint(); if (state.view === "country") renderTop();
   });
   document.querySelectorAll("#kvSeg button").forEach(b => b.onclick = () => {
     b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true"); applyKv();
+  });
+  $("#topList").addEventListener("keydown", e => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches("li[role=button]")) { e.preventDefault(); e.target.click(); }
   });
   $("#zin").onclick = () => msvg.transition().call(zoom.scaleBy, 1.6);
   $("#zout").onclick = () => msvg.transition().call(zoom.scaleBy, 1 / 1.6);
