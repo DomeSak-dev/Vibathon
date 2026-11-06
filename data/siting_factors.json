@@ -38,7 +38,7 @@
     "utilization": 0.7,
     "_note_utilization": "Average load as a share of the campus's maximum draw."
   },
-  "weights": {"power": 0.45, "water": 0.30, "land": 0.25},
+  "weights": {"power": 0.60, "water": 0.20, "land": 0.20},
   "sources": {
     "transmission": "HIFLD Electric Power Transmission Lines (>=230 kV), via ArcGIS FeatureServer US_Electric_Power_Transmission_Lines",
     "generation": "EIA-860M, September 2026 (operating, planned and retiring generators)",

@@ -46,4 +46,4 @@
 |---|---|---|
 | R1 | **Every sub-score is a 0–100 percentile against all US counties.** | Units don't mix, so percentiles make them comparable. |
 | R2 | **Power score = 55% capacity + line length, 20% planned + firm generation, 25% cheap power.** **Water = 60% water-limited MW + 40% low stress.** **Land = 50% land MW + 50% low density.** | — |
-| R3 ⚑ | **Default weights are power 45 / water 30 / land 25, and users can change them.** | Power is the main constraint in this theme. |
+| R3 ⚑ | **Default weights are power 60 / water 20 / land 20, and users can change them.** | Power is the first filter in industry siting: 84% of developers rank it top three (Bloom Energy, 2025), and example scorecards give power about 3x the weight of water or land (build.inc). |

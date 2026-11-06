@@ -59,5 +59,5 @@ Water MW   = 10% of public-supply water ÷ water per MW (cooling design × local
 Land MW    = open acres (from density) × 0.5% ÷ 1 acre per MW
 Campus MW  = min(Power, Water, Land)   → the smallest is the "limiting factor"
 Tokens/day = Campus MW × 70% load × 24 h ÷ Wh per 1,000 output tokens × 1,000
-Scores     = percentiles vs. all US counties; overall = weighted mix (default 45/30/25)
+Scores     = percentiles vs. all US counties; overall = weighted mix (default 60/20/20)
 ```
