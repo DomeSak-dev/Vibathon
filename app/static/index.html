@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Time to Power · where a data center can get power, water and land</title>
+<title>Time to Power</title>
 <script src="/static/vendor/d3.min.js"></script>
 <script src="/static/vendor/topojson-client.min.js"></script>
 <style>
@@ -15,7 +15,8 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text-primary);
-    font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 14px; }
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; font-size: 14px; }
   .num { font-variant-numeric: tabular-nums; }
   button, select, input { font: inherit; color: inherit; }
 
@@ -34,12 +35,11 @@
   #introCard { position: relative; z-index: 2; text-align: center; margin-top: 52vh;
     transition: opacity .4s ease, transform .4s ease; }
   #introCard.hide { opacity: 0; transform: translateY(12px); }
-  .kicker { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-secondary); }
-  h1 { margin: 6px 0 8px; font-size: clamp(34px, 5vw, 58px); letter-spacing: -.02em; font-weight: 800; }
-  .lede { color: var(--text-secondary); max-width: 560px; margin: 0 auto 22px; font-size: 16px; line-height: 1.5; }
+  h1 { margin: 0 0 10px; font-size: clamp(36px, 5.4vw, 64px); letter-spacing: -.035em; font-weight: 700; }
+  .lede { color: var(--text-secondary); margin: 0 auto 28px; font-size: 19px; letter-spacing: -.01em; }
   .pick { display: inline-flex; gap: 10px; background: #00000066; padding: 8px; border-radius: 14px;
     border: 1px solid var(--line); backdrop-filter: blur(6px); }
-  .pick select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; min-width: 230px; }
+  .pick select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; min-width: 200px; }
   .btn { background: var(--accent); border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
   .btn:hover { filter: brightness(1.1); }
   .btn.ghost { background: transparent; border: 1px solid var(--line); }
@@ -49,25 +49,22 @@
     transition: opacity .8s ease; }
   #app.on { opacity: 1; }
   aside { background: var(--surface-1); border-right: 1px solid var(--line); overflow-y: auto; padding: 18px 18px 28px; }
-  .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .brand b { font-size: 16px; }
-  .brand small { color: var(--text-muted); display: block; font-size: 12px; }
-  .sec { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
-  .sec h3 { margin: 0 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
-  .seg { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 3px; }
+  .brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .brand b { font-size: 17px; letter-spacing: -.01em; font-weight: 600; }
+  .icon { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border-radius: 8px; color: var(--text-secondary); }
+  .sec { margin-top: 26px; }
+  .sec h3 { margin: 0 0 10px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .seg { display: grid; grid-template-columns: repeat(var(--n, 4), 1fr); background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 3px; }
   .seg button { background: transparent; border: 0; padding: 7px 0; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 13px; }
   .seg button[aria-pressed="true"] { background: var(--text-primary); color: #111; font-weight: 600; }
   .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; color: var(--text-secondary); }
   .row input[type=range] { flex: 1; accent-color: var(--accent); }
   .row .v { width: 44px; text-align: right; color: var(--text-primary); }
   select.full { width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
-  .chk { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: var(--text-secondary); cursor: pointer; }
-  .sw { display: inline-block; width: 22px; height: 0; border-top: 2px solid var(--grid); }
-  .hint { color: var(--text-muted); font-size: 12px; line-height: 1.45; margin-top: 6px; }
   .legend .bar { height: 10px; border-radius: 5px; }
   .legend .ticks { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 11px; margin-top: 4px; }
   ol.top { list-style: none; padding: 0; margin: 0; counter-reset: t; }
-  ol.top li { counter-increment: t; display: grid; grid-template-columns: 22px 1fr auto; gap: 6px; align-items: baseline;
+  ol.top li { counter-increment: t; display: grid; grid-template-columns: 20px 1fr auto auto; gap: 8px; align-items: baseline;
     padding: 7px 6px; border-radius: 8px; cursor: pointer; }
   ol.top li:hover { background: var(--surface-2); }
   ol.top li::before { content: counter(t); color: var(--text-muted); font-size: 12px; }
@@ -92,12 +89,12 @@
   .gridline { fill: none; stroke: var(--grid); stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
   .topbar { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; pointer-events: none; }
   .topbar > * { pointer-events: auto; }
-  .crumb { background: #000a; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; color: var(--text-secondary); }
+  .crumb { background: #000a; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; color: var(--text-muted); backdrop-filter: blur(8px); }
   .crumb b { color: var(--text-primary); }
   .zoombtns { display: flex; flex-direction: column; gap: 6px; position: absolute; bottom: 18px; left: 16px; }
-  .zoombtns button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-1); cursor: pointer; font-size: 16px; }
+  .zoombtns button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-1); cursor: pointer; font-size: 16px; color: var(--text-secondary); }
   #tip { position: absolute; pointer-events: none; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
-    padding: 9px 11px; font-size: 13px; min-width: 200px; display: none; box-shadow: 0 8px 24px #0008; }
+    padding: 10px 12px; font-size: 13px; min-width: 180px; display: none; box-shadow: 0 8px 24px #0008; }
   #tip .t { font-weight: 600; margin-bottom: 4px; }
   #tip .r { display: flex; justify-content: space-between; gap: 16px; color: var(--text-secondary); }
   #tip .r b { color: var(--text-primary); font-weight: 600; }
@@ -108,22 +105,28 @@
     border-left: 1px solid var(--line); transform: translateX(105%); transition: transform .35s ease; overflow-y: auto; padding: 20px 22px 40px; z-index: 3; }
   #detail.open { transform: none; box-shadow: -20px 0 40px #0007; }
   .close { position: sticky; top: 0; float: right; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; }
-  #detail h2 { margin: 2px 0 2px; font-size: 24px; letter-spacing: -.01em; }
+  #detail h2 { margin: 2px 0 0; font-size: 26px; letter-spacing: -.025em; font-weight: 700; }
   .sub { color: var(--text-muted); }
-  .hero { background: var(--surface-2); border-radius: 14px; padding: 16px; margin: 14px 0; }
-  .hero .big { font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
-  .hero .line { color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }
+  .hero { margin: 28px 0 22px; }
+  .hero .big { font-size: 56px; font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+  .hero .line { color: var(--text-secondary); margin-top: 8px; font-size: 15px; }
   .factors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .factor { background: var(--surface-2); border-radius: 12px; padding: 12px; border: 1px solid transparent; }
   .factor.bind { border-color: var(--warning); }
-  .factor .k { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
-  .factor .m { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .factor .k { font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-between; }
+  .factor.bind .k b { color: var(--warning); font-weight: 500; font-size: 11px; }
+  .factor .m { font-size: 20px; font-weight: 600; margin-top: 4px; letter-spacing: -.01em; }
   .factor .s { color: var(--text-secondary); font-size: 12px; }
   .factor .flag { color: var(--warning); font-size: 11px; margin-top: 4px; }
   .meter { height: 6px; background: #ffffff14; border-radius: 3px; margin-top: 8px; overflow: hidden; }
   .meter i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
-  .card { background: var(--surface-2); border-radius: 12px; padding: 14px; margin-top: 10px; }
-  .card h4 { margin: 0 0 8px; font-size: 13px; }
+  .card { background: var(--surface-2); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
+  .card h4 { margin: 0 0 8px; font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  details.card summary { cursor: pointer; list-style: none; font-size: 13px; color: var(--text-muted); }
+  details.card summary::-webkit-details-marker { display: none; }
+  details.card summary::after { content: "+"; float: right; }
+  details.card[open] summary::after { content: "−"; }
+  details.card[open] summary { margin-bottom: 8px; }
   table.kv { width: 100%; border-collapse: collapse; }
   table.kv td { padding: 5px 0; border-bottom: 1px solid var(--line); color: var(--text-secondary); vertical-align: top; }
   table.kv td:last-child { text-align: right; color: var(--text-primary); }
@@ -133,14 +136,7 @@
   .bars .b .fill { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
   .bars .b.cur .fill { background: #9ec5f4; }
   .bars .b span:last-child { text-align: right; color: var(--text-primary); }
-  .tok { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .tok:last-child { border-bottom: 0; }
-  .tok .n { font-weight: 700; font-size: 18px; text-align: right; }
-  .tok .e { color: var(--text-muted); font-size: 12px; }
-  .note { color: var(--text-muted); font-size: 12px; line-height: 1.5; margin-top: 12px; }
-  .pillrow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .pill { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: #ffffff10; color: var(--text-secondary); }
-  .pill.warn::before { content: "⚠ "; color: var(--warning); }
+  .note { color: var(--text-muted); font-size: 12px; line-height: 1.5; margin-top: 16px; text-align: center; }
 </style>
 </head>
 <body>
@@ -149,12 +145,11 @@
 <section id="intro">
   <svg id="globe" aria-label="Spinning globe"></svg>
   <div id="introCard">
-    <div class="kicker">Theme 03 · Time to power</div>
     <h1>Where can AI get built?</h1>
-    <p class="lede">Power lines, water and open land decide where a data center can go. Pick a region to see which counties can host one, how big, and how fast.</p>
+    <p class="lede">Power, water and land. County by county.</p>
     <div class="pick">
       <select id="regionSel" aria-label="Region"></select>
-      <button class="btn" id="goBtn">Explore →</button>
+      <button class="btn" id="goBtn">Explore</button>
     </div>
   </div>
 </section>
@@ -163,12 +158,14 @@
 <div id="app">
   <aside>
     <div class="brand">
-      <div><b>⚡ Time to Power</b><small>Data center siting · North America</small></div>
-      <button class="btn ghost" id="backBtn" title="Back to globe">🌐</button>
+      <b>Time to Power</b>
+      <button class="btn ghost icon" id="backBtn" title="Back to globe" aria-label="Back to globe">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6.5"/><ellipse cx="8" cy="8" rx="2.8" ry="6.5"/><path d="M1.5 8h13"/></svg>
+      </button>
     </div>
 
     <div class="sec">
-      <h3>Color the map by</h3>
+      <h3>Map</h3>
       <div class="seg" id="layerSeg">
         <button data-k="score" aria-pressed="true">Overall</button>
         <button data-k="power_score">Power</button>
@@ -177,36 +174,34 @@
       </div>
       <div class="legend" style="margin-top:12px">
         <div class="bar" id="legendBar"></div>
-        <div class="ticks" id="legendTicks"></div>
+        <div class="ticks"><span>Low</span><span>High</span></div>
       </div>
-      <div class="hint" id="layerHint"></div>
     </div>
 
     <div class="sec">
-      <h3>Highlight space that can host</h3>
-      <div class="row"><input type="range" id="minMw" min="0" max="1000" step="25" value="0" /><span class="v num" id="minMwV">any</span></div>
-      <div class="hint">Counties below this campus size, and states with no such county, are greyed out. Campus size is the smallest of power, water and land.</div>
-    </div>
-
-    <div class="sec">
-      <h3>Cooling design</h3>
-      <select class="full" id="cooling"></select>
-      <div class="hint">Changes how much water each MW needs, so it changes which counties are water-limited.</div>
-    </div>
-
-    <div class="sec">
-      <h3>What matters to you</h3>
+      <h3>Priorities</h3>
       <div class="row">Power<input type="range" id="wp" min="0" max="100" /><span class="v num" id="wpV"></span></div>
       <div class="row">Water<input type="range" id="ww" min="0" max="100" /><span class="v num" id="wwV"></span></div>
       <div class="row">Land<input type="range" id="wl" min="0" max="100" /><span class="v num" id="wlV"></span></div>
     </div>
 
     <div class="sec">
-      <h3>Transmission lines</h3>
-      <label class="chk"><input type="checkbox" class="kv" value="500" checked /><span class="sw" style="border-top-width:3px"></span>500 kV and up</label>
-      <label class="chk"><input type="checkbox" class="kv" value="345" checked /><span class="sw" style="border-top-width:2px"></span>345 kV</label>
-      <label class="chk"><input type="checkbox" class="kv" value="230" /><span class="sw" style="border-top-width:1px;opacity:.7"></span>230 kV</label>
-      <div class="hint">HIFLD lines in service. A large campus needs 230 kV or more nearby.</div>
+      <h3>Minimum size</h3>
+      <div class="row"><input type="range" id="minMw" min="0" max="1000" step="25" value="0" /><span class="v num" id="minMwV">Any</span></div>
+    </div>
+
+    <div class="sec">
+      <h3>Cooling</h3>
+      <div class="seg" id="coolSeg" style="--n:3"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Grid lines</h3>
+      <div class="seg" id="kvSeg" style="--n:3">
+        <button data-kv="500" aria-pressed="true">500 kV</button>
+        <button data-kv="345" aria-pressed="true">345 kV</button>
+        <button data-kv="230" aria-pressed="false">230 kV</button>
+      </div>
     </div>
 
     <div class="sec">
@@ -217,7 +212,7 @@
 
   <main>
     <svg id="map" aria-label="County heat map"></svg>
-    <div class="loading" id="loading">Loading 3,144 counties and 10,000 transmission lines…</div>
+    <div class="loading" id="loading">Loading…</div>
     <div class="topbar">
       <div class="crumb" id="crumb"></div>
     </div>
@@ -233,7 +228,9 @@ const fmt = d3.format(",.0f");
 const fmtMW = v => v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + " GW" : fmt(v) + " MW";
 const fmtMoney = v => v >= 1e9 ? "$" + (v / 1e9).toFixed(2) + "B" : v >= 1e6 ? "$" + (v / 1e6).toFixed(1) + "M" : "$" + fmt(v);
 const fmtTok = v => v >= 1e15 ? (v / 1e15).toFixed(1) + " quadrillion" : v >= 1e12 ? (v / 1e12).toFixed(1) + " trillion" : (v / 1e9).toFixed(1) + " billion";
-const LAYER_NAME = { score: "Overall score", power_score: "Power score", water_score: "Water score", land_score: "Land score" };
+const LAYER_NAME = { score: "Overall", power_score: "Power", water_score: "Water", land_score: "Land" };
+const COOL_NAME = { evaporative: "Evaporative", hybrid: "Hybrid", closed_loop: "Dry" };
+const coolName = k => COOL_NAME[k] || CFG.cooling[k].label.split(" (")[0];
 // sequential blue ramp, dark surface: low recedes toward the surface, high is light
 const RAMP = ["#0d366b", "#104281", "#184f95", "#1c5cab", "#256abf", "#2a78d6", "#3987e5", "#5598e7", "#6da7ec", "#86b6ef", "#9ec5f4", "#b7d3f6", "#cde2fb"];
 const color = d3.scaleQuantize([0, 100], RAMP);
@@ -356,7 +353,7 @@ function mapIntro() {
 }
 
 function applyKv() {
-  const on = new Set([...document.querySelectorAll(".kv:checked")].map(c => +c.value));
+  const on = new Set([...document.querySelectorAll("#kvSeg button[aria-pressed=true]")].map(b => +b.dataset.kv));
   gridG.selectAll("path").attr("display", d => on.has(d.properties.kv) ? null : "none");
 }
 
@@ -381,18 +378,8 @@ function aggregateStates() {
   state.stAgg = new Map(raw.map(d => [d.fips, { ...d, rank: rank(d.v) }]));
 }
 
-function setLegend() {
-  const c = state.view === "country";
-  $("#legendTicks").innerHTML = c ? "<span>weakest state</span><span>strongest state</span>"
-    : "<span>0 · weak</span><span>50</span><span>100 · strong</span>";
-  $("#layerHint").textContent = c
-    ? "Each state is colored by its best quarter of counties, ranked from weakest to strongest state. Click a state to see its counties."
-    : "County score is a percentile against all 3,144 US counties. Click a county for the full analysis.";
-}
-
 function paint() {
   aggregateStates();
-  setLegend();
   const country = state.view === "country";
   stFillG.selectAll("path")
     .attr("fill", d => { const a = state.stAgg.get(d.id); return a ? color(a.rank) : "#262624"; })
@@ -428,29 +415,28 @@ async function renderTop() {
   if (state.view === "country") {
     $("#topTitle").textContent = "Top states";
     const top = [...state.stAgg.values()].filter(a => a.nOk > 0).sort((a, b) => b.v - a.v).slice(0, 10);
-    $("#topList").innerHTML = top.map(a => `<li data-s="${a.fips}"><span>${stateName(a.fips)}<br><span class="s">best: ${a.best.NAME} · ${fmtMW(a.best.supportable_mw)}</span></span><b class="num">${a.v.toFixed(0)}</b></li>`).join("");
+    $("#topList").innerHTML = top.map(a => `<li data-s="${a.fips}"><span>${stateName(a.fips)}</span><span class="s num">${fmtMW(a.best.supportable_mw)}</span><b class="num">${a.v.toFixed(0)}</b></li>`).join("");
     document.querySelectorAll("#topList li").forEach(li => li.onclick = () => enterState(li.dataset.s));
   } else {
     const fips = state.st;
-    $("#topTitle").textContent = `Top counties in ${stateName(fips)}`;
+    $("#topTitle").textContent = `Top in ${stateName(fips)}`;
     const top = await fetch(`/api/top?n=10&min_mw=${state.minMw}&state=${ABBR.get(fips)}&` + q()).then(r => r.json());
     if (state.st !== fips) return;
     $("#topList").innerHTML = top.length
-      ? top.map(t => `<li data-g="${t.GEOID}"><span>${t.NAME}<br><span class="s">${fmtMW(t.supportable_mw)} · ${t.binding}-limited</span></span><b class="num">${t.score.toFixed(0)}</b></li>`).join("")
-      : `<li style="cursor:default"><span class="s">No county here can host ${fmtMW(state.minMw)}.</span></li>`;
+      ? top.map(t => `<li data-g="${t.GEOID}"><span>${t.NAME}</span><span class="s num">${fmtMW(t.supportable_mw)}</span><b class="num">${t.score.toFixed(0)}</b></li>`).join("")
+      : `<li style="cursor:default"><span></span><span class="s">None at ${fmtMW(state.minMw)}</span></li>`;
     document.querySelectorAll("#topList li[data-g]").forEach(li => li.onclick = () => openCounty(li.dataset.g, true));
   }
 }
 
 let STATE_NAMES = new Map();
+const cap = w => w.charAt(0).toUpperCase() + w.slice(1);
 const stateName = f => STATE_NAMES.get(f) || ABBR.get(f) || f;
 
 function renderCrumb() {
-  const layer = `<span>${LAYER_NAME[state.layer]}</span>`;
   $("#crumb").innerHTML = state.view === "country"
-    ? `🌐 <a id="cGlobe">North America</a> › <b>United States</b> · ${layer}`
-    : `🌐 <a id="cGlobe">North America</a> › <a id="cUS">United States</a> › <b>${stateName(state.st)}</b> · ${layer}`;
-  $("#cGlobe").onclick = backToGlobe;
+    ? `<b>United States</b>`
+    : `<a id="cUS">United States</a> › <b>${stateName(state.st)}</b>`;
   if ($("#cUS")) $("#cUS").onclick = toCountry;
 }
 
@@ -486,11 +472,8 @@ function showStateTip(e, d) {
   if (state.view === "state" && d.id === state.st) return;
   const a = state.stAgg.get(d.id); if (!a) return;
   placeTip(e, `<div class="t">${stateName(d.id)}</div>
-    <div class="r">${LAYER_NAME[state.layer]} (best quarter)<b class="num">${a.v.toFixed(0)} / 100</b></div>
-    <div class="r">Counties that can host ${fmtMW(a.minHost)}+<b class="num">${a.nHost} of ${a.n}</b></div>
-    <div class="r">Best county<b>${a.best.NAME}</b></div>
-    <div class="r">… could host<b class="num">${fmtMW(a.best.supportable_mw)}</b></div>
-    <div class="r" style="margin-top:4px;color:var(--text-muted)">Click to see its counties</div>`);
+    <div class="r">${LAYER_NAME[state.layer]}<b class="num">${a.v.toFixed(0)}</b></div>
+    <div class="r">Best<b>${a.best.NAME} · ${fmtMW(a.best.supportable_mw)}</b></div>`);
 }
 
 function placeTip(e, html) {
@@ -506,10 +489,9 @@ function placeTip(e, html) {
 function showTip(e, d) {
   const r = state.rows.get(d.properties.GEOID); if (!r) return;
   placeTip(e, `<div class="t">${r.NAME}, ${r.STUSPS}</div>
-    <div class="r">${LAYER_NAME[state.layer]}<b class="num">${r[state.layer].toFixed(0)} / 100</b></div>
-    <div class="r">Could host<b class="num">${fmtMW(r.supportable_mw)}</b></div>
-    <div class="r">Limited by<b>${r.binding}</b></div>
-    <div class="r">Highest line<b class="num">${r.max_kv ? r.max_kv + " kV" : "under 230 kV"}</b></div>`);
+    <div class="r">${LAYER_NAME[state.layer]}<b class="num">${r[state.layer].toFixed(0)}</b></div>
+    <div class="r">Capacity<b class="num">${fmtMW(r.supportable_mw)}</b></div>
+    <div class="r">Limit<b>${cap(r.binding)}</b></div>`);
 }
 
 function zoomToCounty(g) {
@@ -529,75 +511,68 @@ async function openCounty(g, fly = false) {
   state.sel = g; paint();
   if (fly) zoomToCounty(g);
   const r = await fetch(`/api/county/${g}?` + q()).then(x => x.json());
-  const bindName = { power: "grid connection", water: "water supply", land: "open land" }[r.binding];
   const t = r.tokens, maxCool = Math.max(...Object.values(r.all_cooling), 1);
-  const factor = (k, label, mw, score, lines, flag) => `
+  const factor = (k, label, mw, score) => `
     <div class="factor ${r.binding === k ? "bind" : ""}">
-      <div class="k">${label}</div><div class="m num">${fmtMW(mw)}</div>
-      <div class="s">score ${score.toFixed(0)} / 100</div>
+      <div class="k">${label}${r.binding === k ? "<b>Limit</b>" : ""}</div><div class="m num">${fmtMW(mw)}</div>
       <div class="meter"><i style="width:${score}%"></i></div>
-      <div class="s" style="margin-top:6px">${lines}</div>
-      ${r.binding === k ? `<div class="flag">⚠ limiting factor</div>` : ""}${flag || ""}
     </div>`;
-  const mix = (r.planned_mix || []).map(([tech, mw]) => `${tech} ${fmt(mw)} MW`).join("<br>") || "none reported";
+  const mix = (r.planned_mix || []).map(([tech, mw]) => `${tech} ${fmt(mw)} MW`).join("<br>") || "None";
+  const county = `${r.NAME}${/County|Parish|Borough|city/i.test(r.NAME) ? "" : " County"}`;
   $("#detail").innerHTML = `
     <button class="close" aria-label="Close" onclick="closeDetail()">✕</button>
-    <div class="sub">${r.STATE_NAME} · ${r.ba ? "Grid operator " + r.ba : "Grid operator n/a"}</div>
-    <h2>${r.NAME}${/County|Parish|Borough|city/i.test(r.NAME) ? "" : " County"}, ${r.STUSPS}</h2>
-    <div class="sub num">Rank #${fmt(r.rank)} of ${fmt(r.of)} US counties · #${r.state_rank} in ${r.STUSPS} · overall ${r.score.toFixed(0)} / 100</div>
+    <div class="sub num">${r.STATE_NAME} · #${fmt(r.rank)} of ${fmt(r.of)}</div>
+    <h2>${county}</h2>
 
     <div class="hero">
-      <div class="sub">Largest campus this county could likely support</div>
       <div class="big num">${fmtMW(r.supportable_mw)}</div>
-      <div class="line">Held back by <b>${bindName}</b>. Power in about <b class="num">${r.months_lo}–${r.months_hi} months</b> ${r.max_kv ? `on the existing ${r.max_kv} kV network` : "— needs a new high-voltage line"}.</div>
+      <div class="line">${cap(r.binding)}-limited · Power in ${r.months_lo}–${r.months_hi} months</div>
     </div>
 
     <div class="factors">
-      ${factor("power", "⚡ Power", r.power_mw, r.power_score, `Top line ${r.max_kv ? r.max_kv + " kV" : "&lt;230 kV"}<br>${fmt(r.km_230 + r.km_345 + r.km_500)} km of HV line`)}
-      ${factor("water", "💧 Water", r.water_mw, r.water_score, `${r.ps_mgd.toFixed(1)} Mgal/day public supply<br>stress ${r.water_stress.toFixed(0)}/100`, r.water_est ? `<div class="flag">⚑ estimated from state</div>` : "")}
-      ${factor("land", "🏞 Land", r.land_mw, r.land_score, `${fmt(r.open_acres)} open acres<br>${fmt(r.density)} people / sq mi`)}
+      ${factor("power", "Power", r.power_mw, r.power_score)}
+      ${factor("water", "Water", r.water_mw, r.water_score)}
+      ${factor("land", "Land", r.land_mw, r.land_score)}
     </div>
 
     <div class="card">
-      <h4>🤖 AI it could run</h4>
-      <div class="sub" style="margin-bottom:6px">Output tokens per day at ${Math.round(r.utilization * 100)}% average load, ${fmtMW(r.supportable_mw)} campus</div>
-      ${["small", "medium", "large"].map(k => `<div class="tok"><div><b>${t[k].label}</b><div class="e">${t[k].examples}</div></div>
-        <div><div class="n num">${fmtTok(t[k].typical)}</div><div class="e num" style="text-align:right">${fmtTok(t[k].high)} – ${fmtTok(t[k].low)}</div></div></div>`).join("")}
+      <h4>Tokens per day</h4>
+      <table class="kv">${["small", "medium", "large"].map(k => `<tr><td title="${t[k].examples}">${t[k].label.replace(" model", "")}</td><td class="num">${fmtTok(t[k].typical)}</td></tr>`).join("")}</table>
     </div>
 
     <div class="card">
-      <h4>💵 Running costs per year (at ${Math.round(r.utilization * 100)}% load)</h4>
+      <h4>Cost per year</h4>
       <table class="kv">
-        <tr><td>Electricity · ${fmt(r.energy_mwh_year)} MWh × ${r.elec_ind_c ? r.elec_ind_c.toFixed(2) + "¢" : "n/a"}/kWh (${r.STUSPS} industrial, 2026)</td><td class="num">${fmtMoney(r.elec_cost_year)}</td></tr>
-        <tr><td>Water · ${fmt(r.water_gal_year / 1e6)} Mgal × $${r.water_price.toFixed(2)}/1,000 gal<br><span class="sub">${r.water_price_source}</span></td><td class="num">${fmtMoney(r.water_cost_year)}</td></tr>
-        <tr><td>Water need vs. county public supply</td><td class="num">${r.water_share_of_ps != null ? (r.water_share_of_ps * 100).toFixed(1) + "%" : "n/a"}</td></tr>
+        <tr><td>Electricity</td><td class="num">${fmtMoney(r.elec_cost_year)}</td></tr>
+        <tr><td>Water</td><td class="num">${fmtMoney(r.water_cost_year)}</td></tr>
       </table>
     </div>
 
     <div class="card">
-      <h4>💧 Same county, different cooling</h4>
-      <div class="sub" style="margin-bottom:4px">Water-limited campus size (before power and land limits)</div>
-      <div class="bars">${Object.entries(r.all_cooling).map(([c, mw]) => `<div class="b ${c === r.cooling ? "cur" : ""}"><span>${CFG.cooling[c].label.split(" (")[0]}</span><div class="track"><div class="fill" style="width:${Math.max(2, mw / maxCool * 100)}%"></div></div><span class="num">${fmtMW(mw)}</span></div>`).join("")}</div>
+      <h4>Water limit by cooling</h4>
+      <div class="bars">${Object.entries(r.all_cooling).map(([c, mw]) => `<div class="b ${c === r.cooling ? "cur" : ""}"><span>${coolName(c)}</span><div class="track"><div class="fill" style="width:${Math.max(2, mw / maxCool * 100)}%"></div></div><span class="num">${fmtMW(mw)}</span></div>`).join("")}</div>
     </div>
 
-    <div class="card">
-      <h4>📊 The data behind it</h4>
+    <details class="card">
+      <summary>Details</summary>
       <table class="kv">
-        <tr><td>Lines ≥ 500 / 345 / 230 kV in county</td><td class="num">${fmt(r.km_500)} / ${fmt(r.km_345)} / ${fmt(r.km_230)} km</td></tr>
-        <tr><td>Generation operating today</td><td class="num">${fmtMW(r.gen_mw)}</td></tr>
-        <tr><td>Planned by 2029 (${fmt(r.planned_n)} units)</td><td class="num">${fmtMW(r.planned_mw)}</td></tr>
-        <tr><td>Biggest planned types</td><td>${mix}</td></tr>
+        <tr><td>Grid operator</td><td>${r.ba || "n/a"}</td></tr>
+        <tr><td>Highest line</td><td class="num">${r.max_kv ? r.max_kv + " kV" : "Under 230 kV"}</td></tr>
+        <tr><td>Lines 500 / 345 / 230 kV</td><td class="num">${fmt(r.km_500)} / ${fmt(r.km_345)} / ${fmt(r.km_230)} km</td></tr>
+        <tr><td>Generation today</td><td class="num">${fmtMW(r.gen_mw)}</td></tr>
+        <tr><td>Planned by 2029</td><td class="num">${fmtMW(r.planned_mw)}</td></tr>
+        <tr><td>Planned mix</td><td>${mix}</td></tr>
         <tr><td>Retiring by 2030</td><td class="num">${fmtMW(r.retire_mw)}</td></tr>
-        <tr><td>Public water supply (2015)</td><td class="num">${r.ps_mgd.toFixed(1)} Mgal/day</td></tr>
-        <tr><td>Rain · cooling degree days (normal)</td><td class="num">${r.precip_in.toFixed(0)} in · ${fmt(r.cdd)}</td></tr>
-        <tr><td>Land area · population (2024)</td><td class="num">${fmt(r.land_sqmi)} sq mi · ${fmt(r.pop)}</td></tr>
+        <tr><td>Public water supply</td><td class="num">${r.ps_mgd.toFixed(1)} Mgal/day${r.water_est ? " (est.)" : ""}</td></tr>
+        <tr><td>Water stress</td><td class="num">${r.water_stress.toFixed(0)} / 100</td></tr>
+        <tr><td>Open land</td><td class="num">${fmt(r.open_acres)} acres</td></tr>
+        <tr><td>Population</td><td class="num">${fmt(r.pop)}</td></tr>
+        <tr><td>Electricity rate</td><td class="num">${r.elec_ind_c ? r.elec_ind_c.toFixed(2) + "¢/kWh" : "n/a"}</td></tr>
+        <tr><td>Water rate</td><td class="num">$${r.water_price.toFixed(2)} / 1,000 gal</td></tr>
+        <tr><td>Load</td><td class="num">${Math.round(r.utilization * 100)}%</td></tr>
       </table>
-      <div class="pillrow">
-        <span class="pill">HIFLD lines</span><span class="pill">EIA-860M Sep 2026</span><span class="pill">USGS water 2015</span><span class="pill">NOAA normals</span><span class="pill">Census 2024</span>
-        <span class="pill warn">Indicative screening, not an interconnection study</span>
-      </div>
-    </div>
-    <div class="note">Power MW is a rule of thumb from the highest line voltage in the county, adjusted for planned and retiring generation. It does not know how much of a line is already spoken for. See ASSUMPTIONS.md.</div>`;
+    </details>
+    <div class="note">Screening estimate. Not an interconnection study.</div>`;
   $("#detail").classList.add("open");
 }
 function closeDetail() { $("#detail").classList.remove("open"); state.sel = null; paint(); }
@@ -610,20 +585,25 @@ function goUp() {  // Esc: close the panel first, then step back up a level
 async function init() {
   CFG = await fetch("/api/config").then(r => r.json());
   $("#regionSel").innerHTML = CFG.regions.map(r => `<option value="${r.id}" ${r.ready ? "" : "disabled"}>${r.label}</option>`).join("");
-  $("#cooling").innerHTML = Object.entries(CFG.cooling).map(([k, c]) => `<option value="${k}">${c.label} · ${c.l_per_kwh} L/kWh</option>`).join("");
-  state.cooling = CFG.default_cooling; $("#cooling").value = state.cooling;
+  state.cooling = CFG.default_cooling;
+  $("#coolSeg").innerHTML = Object.entries(CFG.cooling).map(([k, c]) => `<button data-c="${k}" title="${c.label} · ${c.l_per_kwh} L/kWh" aria-pressed="${k === state.cooling}">${coolName(k)}</button>`).join("");
+  document.querySelectorAll("#coolSeg button").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#coolSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    state.cooling = b.dataset.c; reload();
+  });
   for (const [k, id] of [["power", "wp"], ["water", "ww"], ["land", "wl"]]) {
     state.w[k] = Math.round(CFG.weights[k] * 100);
     const el = $("#" + id); el.value = state.w[k]; $("#" + id + "V").textContent = state.w[k];
-    el.oninput = () => { state.w[k] = +el.value; $("#" + id + "V").textContent = el.value; if (state.layer === "score") reload(); else reload(); };
+    el.oninput = () => { state.w[k] = +el.value; $("#" + id + "V").textContent = el.value; reload(); };
   }
-  $("#cooling").onchange = e => { state.cooling = e.target.value; reload(); };
-  $("#minMw").oninput = e => { state.minMw = +e.target.value; $("#minMwV").textContent = state.minMw ? fmtMW(state.minMw) : "any"; paint(); reload(); };
+  $("#minMw").oninput = e => { state.minMw = +e.target.value; $("#minMwV").textContent = state.minMw ? fmtMW(state.minMw) : "Any"; paint(); reload(); };
   document.querySelectorAll("#layerSeg button").forEach(b => b.onclick = () => {
     document.querySelectorAll("#layerSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
-    state.layer = b.dataset.k; renderCrumb(); paint(); if (state.view === "country") renderTop();
+    state.layer = b.dataset.k; paint(); if (state.view === "country") renderTop();
   });
-  document.querySelectorAll(".kv").forEach(c => c.onchange = applyKv);
+  document.querySelectorAll("#kvSeg button").forEach(b => b.onclick = () => {
+    b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true"); applyKv();
+  });
   $("#zin").onclick = () => msvg.transition().call(zoom.scaleBy, 1.6);
   $("#zout").onclick = () => msvg.transition().call(zoom.scaleBy, 1 / 1.6);
   $("#zreset").onclick = () => state.view === "state"
