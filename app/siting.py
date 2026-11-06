@@ -5,7 +5,8 @@ Power MW  = MW by highest line voltage x (1 + planned-generation bonus - retirem
 Water MW  = 10% of public-supply withdrawals / water per MW (cooling design x local heat)
 Land MW   = open acres x 0.2% / 1 acre per MW
 Tokens/day = MW x utilization x 24 h / (Wh per 1,000 output tokens) x 1,000
-Cost/year  = energy (state rate, or PPA + delivery) + PJM capacity + water and sewer (default rate x stress)
+Cost/year  = energy (state rate, or PPA + delivery) + capacity-market price (PJM, MISO, ISO-NE, NYISO)
+             + water and sewer (default rate x stress)
              + capital charge x land (acres x state farmland $/acre x line-voltage premium)
 All assumptions: ASSUMPTIONS.md. All numbers: data/siting_factors.json.
 """
@@ -125,8 +126,10 @@ def priced(cooling: str = F["water"]["default_cooling"], power: str = F["pricing
     else:
         d["energy_usd_mwh"] = src["usd_mwh"] + sum(C["ppa_delivery_c_per_kwh"]) / 2 * 10
     d["energy_cost_year"] = mwh * d.energy_usd_mwh
-    # capacity: priced only where a market price applies (PJM); NaN = assumed inside the energy price
-    d["capacity_usd_mw_day"] = d.ba_fill.map(C["capacity_usd_per_mw_day"]).astype(float)
+    # capacity: priced where a capacity market sets it (PJM, MISO, ISO-NE, NYISO); NaN = inside the energy price
+    south = (d.ba_fill == "MISO") & d.STUSPS.isin(C["capacity_miso_south_states"])
+    d["capacity_key"] = d.ba_fill.where(~south, "MISO South")
+    d["capacity_usd_mw_day"] = d.capacity_key.map(C["capacity_usd_per_mw_day"]).astype(float)
     d["capacity_cost_year"] = mw * d.capacity_usd_mw_day * 365
 
     # water and sewer: default rate scaled by water stress; a verified local rate is used as it is
@@ -204,7 +207,8 @@ def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF
         "ppa_usd_mwh": src["usd_mwh"],
         "ppa_delivery_c": sum(C["ppa_delivery_c_per_kwh"]) / 2 if src["usd_mwh"] is not None else None,
         "elec_cost_year": r["energy_cost_year"],
-        "capacity_where": C["capacity_where"].get(r["ba_fill"]),
+        "capacity_where": C["capacity_where"].get(r["capacity_key"]),
+        "capacity_est": r["capacity_key"] in C["capacity_est"],
         "sewer_share": C["sewer_share_of_water"],
         "capital_charge": C["capital_charge"],
         "land_price_where": (f"{r['STATE_NAME']} farmland, USDA 2026" if not r["land_price_est"]

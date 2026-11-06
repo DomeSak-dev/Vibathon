@@ -59,7 +59,7 @@ Water MW   = 10% of public-supply water ÷ water per MW (cooling design × local
 Land MW    = open acres (from density) × 0.5% ÷ 1 acre per MW
 Campus MW  = min(Power, Water, Land)   → the smallest is the "limiting factor"
 Cost/year  = MWh × state industrial rate (or PPA + delivery)
-             + PJM capacity $333/MW-day × MW
+             + capacity-market price × MW (per MW-day: PJM $333, MISO $116–126, ISO-NE $118, NYISO $329 est.)
              + water and sewer ($6 per 1,000 gal default × 0.75–1.5 by water stress, sewer on 20%)
              + 8% a year × land (1 acre/MW × state farmland $/acre × 1–25 near big lines)
 Tokens/day = Campus MW × 70% load × 24 h ÷ Wh per 1,000 output tokens × 1,000

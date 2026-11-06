@@ -271,7 +271,8 @@ const fmtTok = v => v >= 1e15 ? (v / 1e15).toFixed(1) + " quadrillion" : v >= 1e
 const LAYER_NAME = { score: "Overall", power_score: "Power", water_score: "Water", land_score: "Land", cost_score: "Cost" };
 const COOL_NAME = { evaporative: "Evaporative", hybrid: "Hybrid", closed_loop: "Dry" };
 const SRC_NAME = { transmission: "Power lines", generation: "Generation", water: "Water use", climate: "Climate", population: "Population",
-  land: "Land area", price: "Electricity price", tokens: "Tokens", capacity: "Capacity price", ppa: "PPA price", land_price: "Land price",
+  land: "Land area", price: "Electricity price", tokens: "Tokens", capacity: "Capacity, PJM", capacity_miso: "Capacity, MISO",
+  capacity_isne: "Capacity, ISO-NE", capacity_nyiso: "Capacity, NYISO", ppa: "PPA price", land_price: "Land price",
   land_premium: "Land premium" };
 // A county under this size can't host a large campus, whatever its score. Shown as a warning, never hidden by the score.
 let MIN_VIABLE = 100;   // replaced by facility.min_viable_mw from /api/config
@@ -636,8 +637,8 @@ async function openCounty(g, fly = false) {
           ? `${r.power_source_label} $${r.ppa_usd_mwh}/MWh + ${r.ppa_delivery_c}¢/kWh delivery (approx.)`
           : `${r.elec_ind_c.toFixed(2)}¢/kWh · ${r.STATE_NAME} industrial average`}</div></td><td class="num">${fmtMoney(r.energy_cost_year)}</td></tr>
         <tr><td>Capacity<div class="rng">${r.capacity_cost_year != null
-          ? `${r.capacity_where} · $${r.capacity_usd_mw_day.toFixed(0)}/MW-day${r.ba_est ? " · grid operator est." : ""}`
-          : `Not priced separately. Assumed inside the ${isPPA ? "delivery charge" : "state rate"}.`}</div></td><td class="num">${r.capacity_cost_year != null ? fmtMoney(r.capacity_cost_year) : "—"}</td></tr>
+          ? `${r.capacity_where} · $${r.capacity_usd_mw_day.toFixed(0)}/MW-day${r.capacity_est ? " · est." : ""}${r.ba_est ? " · grid operator est." : ""}`
+          : `No capacity market here. Assumed inside the ${isPPA ? "delivery charge" : "state rate"}.`}</div></td><td class="num">${r.capacity_cost_year != null ? fmtMoney(r.capacity_cost_year) : "—"}</td></tr>
         <tr><td>Water and sewer<div class="rng">$${r.water_rate.toFixed(2)} / 1,000 gal · ${r.water_rate_local
           ? r.water_price_source : `$${r.water_price.toFixed(2)} default × ${r.water_mult.toFixed(2)} for stress`} · sewer on ${Math.round(r.sewer_share * 100)}%</div></td><td class="num">${fmtMoney(r.water_cost_year + r.sewer_cost_year)}</td></tr>
         <tr><td>Land<div class="rng">${Math.round(r.capital_charge * 100)}% a year of ${fmtMoney(r.land_cost)} · ${fmt(r.land_acres)} acres × $${fmt(r.land_usd_acre)} × ${r.land_premium} (${kvName})${r.land_price_est ? " · US average" : ""}</div></td><td class="num">${fmtMoney(r.land_cost_year)}</td></tr>
@@ -707,7 +708,7 @@ async function openCounty(g, fly = false) {
         <dt>Capacity</dt><dd>The smallest of power, water and land, at ${Math.round(r.utilization * 100)}% average load.</dd>
         <dt>Scores</dt><dd>Percentiles against all US counties, weighted by your priorities.</dd>
         <dt>Energy</dt><dd>${r.ppa_usd_mwh != null ? `${r.power_source_label} at $${r.ppa_usd_mwh}/MWh plus ${r.ppa_delivery_c}¢/kWh delivery. Both approximate.` : "State industrial average rate (EIA, Jan–Aug 2026)."}</dd>
-        <dt>Capacity charge</dt><dd>PJM counties only, $${CFG.pricing.capacity_usd_per_mw_day.PJM}/MW-day (2027/28 auction). Elsewhere it is assumed inside the energy price. Part of it may already be in PJM state rates.</dd>
+        <dt>Capacity charge</dt><dd>Capacity-market price per MW-day, on top of the energy price: ${(() => { const c = CFG.pricing.capacity_usd_per_mw_day; return `PJM $${Math.round(c.PJM)}, MISO $${c.MISO} ($${c["MISO South"]} South), ISO-NE $${Math.round(c.ISNE)}, NYISO $${c.NYIS} (est.)`; })()}. Grids with no capacity market are assumed to carry it in the state rate. Part of it may already be in the rate, so this errs high.</dd>
         <dt>Water and sewer</dt><dd>$${CFG.water_price_default.toFixed(2)} per 1,000 gal default, × ${CFG.pricing.water_stress_multiplier.join(" to ")} by water stress. Sewer on ${Math.round(CFG.pricing.sewer_share_of_water * 100)}% of the water. Verified local rates are used as they are.</dd>
         <dt>Land</dt><dd>${CFG.acres_per_mw} acre per MW × state farmland value (USDA 2026) × a premium near big lines: ${["500", "345", "230", "0"].map(k => `×${CFG.pricing.land_premium_by_kv[k]} at ${k === "0" ? "none" : k + " kV"}`).join(", ")}. Carried at ${Math.round(CFG.pricing.capital_charge * 100)}% a year.</dd>
       </dl>
