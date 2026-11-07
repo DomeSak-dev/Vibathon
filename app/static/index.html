@@ -322,7 +322,7 @@ async function initGlobe() {
   const [land, countries] = await Promise.all([d3.json("/static/vendor/land-110m.json"), d3.json("/static/vendor/countries-110m.json")]);
   const landF = topojson.feature(land, land.objects.land);
   const ctry = topojson.feature(countries, countries.objects.countries).features;
-  const NA = new Set(["840", "124", "484"]);  // USA, Canada, Mexico
+  const NA = new Set(["840"]);  // the US: the region the tool scores
   gW = 1600; gH = 900; gR = 250;  // fixed canvas, scaled to the window with preserveAspectRatio=slice
   proj = d3.geoOrthographic().scale(gR).translate([gW / 2, gH * 0.36]).rotate(rot).clipAngle(90);
   gpath = d3.geoPath(proj);

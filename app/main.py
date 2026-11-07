@@ -46,7 +46,7 @@ def config():
             "pricing": siting.F["pricing"], "default_power": POWER,
             "facility": siting.F["facility"], "acres_per_mw": siting.F["land"]["acres_per_mw"],
             "water_price_default": siting.F["water"]["price_per_kgal_default"],
-            "sources": siting.F["sources"], "regions": [{"id": "na", "label": "North America", "ready": True},
+            "sources": siting.F["sources"], "regions": [{"id": "na", "label": "United States", "ready": True},
                                                         {"id": "eu", "label": "Europe (coming soon)", "ready": False},
                                                         {"id": "apac", "label": "Asia-Pacific (coming soon)", "ready": False}]}
 
