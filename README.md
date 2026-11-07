@@ -5,7 +5,7 @@ Data center siting for Theme 3 of the Vibathon. Pick a region on a spinning glob
 - months to power;
 - yearly cost: energy, capacity, water and sewer, and land (grid rate or a solar or wind PPA);
 - how many AI tokens a day the campus could serve;
-- three sites for sale right now that fit the campus (acreage, a nearby big line), from a live web search.
+- up to three sites for sale that fit the campus, each in its own box: price, acres and square feet, zoning, utilities, notable details, the photo when the listing has one, and a link to the listing.
 
 Ideas and next steps: [suggestion.md](suggestion.md). Every assumption: [ASSUMPTIONS.md](ASSUMPTIONS.md).
 
@@ -23,7 +23,7 @@ python -m uvicorn app.main:app --port 8001
 
 Open http://localhost:8001. The processed data is already in the repo, so the demo needs no internet. d3 and the map files are in `app/static/vendor/`.
 
-**Sites for sale (optional).** Live listings need the Anthropic SDK and an API key on the server. Without them the county panel shows the same searches as links.
+**Sites for sale.** The repo ships listings read from the listing pages on Nov 7, 2026 for 11 top counties (`app/static/data/listings.json`), shown with that date. Live search for any county needs the Anthropic SDK and an API key on the server. Without either, the panel shows the searches as links.
 
 ```bash
 pip install anthropic
@@ -33,7 +33,7 @@ pip install anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-Each county search costs a few cents of API use and web searches, and the result is cached for 6 hours. Claude searches listing sites with Anthropic's web search, opens each listing to check it's still for sale, and returns its picks. Only links that came from a search result or an opened page are shown. Listing sites aren't scraped (see `app/listings.py`).
+Each county search costs a few cents of API use and web searches, and the result is cached for 6 hours. Claude searches listing sites with Anthropic's web search, opens each listing to read its size, price, utilities and photo and to check it's still for sale, and returns its picks. Only links that came from a search result or an opened page are shown, and only photos from that page or the listing site (see `app/listings.py`). If live search fails, the saved listings answer.
 
 ## Rebuild the data
 
@@ -59,7 +59,8 @@ NOAA climate files and the EIA price page were downloaded once into `data/raw/` 
 | `scripts/build_sites.py` | Joins everything to 3,144 counties → `data/counties.json`, map layers → `app/static/data/` |
 | `app/siting.py` | The model: power / water / land MW, scores, binding factor, costs, tokens |
 | `app/main.py` | FastAPI: `/api/config`, `/api/map`, `/api/county/{fips}`, `/api/top`, `/api/sites/{fips}` |
-| `app/listings.py` | Live sites for sale: web search for 3 listings that fit the campus |
+| `app/listings.py` | Sites for sale: live web search for 3 listings that fit the campus, with the saved listings as fallback |
+| `app/static/data/listings.json` | Saved listings for 11 top counties, read from the listing pages on Nov 7, 2026 |
 | `app/static/index.html` | The whole front end (D3, no build step) |
 | `data/siting_factors.json` | Every number the model uses; edit it here, not in code |
 | `data/energy_factors.json` | Wh per 1,000 tokens by model tier (from the AI Energy Bill project) |

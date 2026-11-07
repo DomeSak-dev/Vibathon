@@ -171,11 +171,53 @@
   .factor .s { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
   ul.next { margin: 0; padding-left: 18px; color: var(--text-primary); line-height: 1.55; }
   ul.next li + li { margin-top: 4px; }
-  ul.sites { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 12px; }
-  ul.sites li + li { border-top: 1px solid var(--line); padding-top: 12px; }
-  ul.sites a { color: var(--text-primary); font-weight: 600; text-decoration: none; }
-  ul.sites a:hover { color: var(--accent); }
-  ul.sites .fit { color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }
+  /* sites for sale: one box per listing */
+  .lsts { display: grid; gap: 12px; margin-top: 10px; }
+  .lst { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
+  .lst .media { position: relative; aspect-ratio: 5 / 2; max-width: 100%; background: #10161d; overflow: hidden; }
+  .lst .media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .lst .media svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .plat .grid { stroke: #ffffff0d; stroke-width: 1; }
+  .plat .need { fill: none; stroke: #9ec5f4aa; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .plat .lot { fill: #3987e540; stroke: var(--accent); stroke-width: 1.5; }
+  .plat .lot.full { fill: #0ca30c40; stroke: var(--good); }
+  .plat text { fill: var(--text-secondary); font-size: 12px; font-family: inherit; }
+  .plat text.big { fill: var(--text-primary); font-size: 15px; font-weight: 650; }
+  .lst .tags { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+  .lst .tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #0e0f10cc; color: var(--text-primary);
+    backdrop-filter: blur(6px); display: inline-flex; align-items: center; gap: 5px; }
+  .lst .tag .d { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+  .lst .tag.unclear .d { background: var(--warning); }
+  .lst .tag.r { margin-left: auto; font-weight: 500; color: var(--text-secondary); }
+  .lst .body { padding: 12px 14px 14px; display: grid; gap: 10px; }
+  .lst .t { font-size: 15px; font-weight: 650; letter-spacing: -.01em; line-height: 1.3; text-wrap: balance; }
+  .lst .loc { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+  .lst .price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .lst .price b { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+  .lst .price span { color: var(--text-muted); font-size: 12px; }
+  .lst .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; }
+  .lst .facts div { background: var(--surface-2); padding: 8px 10px; min-width: 0; }
+  .lst .facts small { display: block; color: var(--text-muted); font-size: 11px; margin-bottom: 2px; }
+  .lst .facts b { display: block; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+  .lst .facts i { display: block; font-style: normal; color: var(--text-muted); font-size: 11px; margin-top: 1px; }
+  .lst .facts .na b { color: var(--text-muted); font-weight: 500; }
+  .lst .fitbar { height: 6px; background: #ffffff10; border-radius: 3px; overflow: hidden; margin-top: 5px; }
+  .lst .fitbar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .lst .fitbar i.full { background: var(--good); }
+  .lst .fit { font-size: 12.5px; color: var(--text-secondary); }
+  .lst .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+  .lst .chips li { font-size: 11.5px; color: var(--text-secondary); background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 3px 7px; line-height: 1.35; }
+  .lst ul.hl { margin: 0; padding-left: 16px; color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; }
+  .lst .chk { font-size: 12px; color: var(--text-secondary); line-height: 1.45; background: #fab21910; border-left: 2px solid var(--warning);
+    padding: 6px 9px; border-radius: 0 6px 6px 0; }
+  .lst .chk b { color: var(--warning); font-weight: 600; }
+  .lst .by { color: var(--text-muted); font-size: 11.5px; line-height: 1.45; }
+  .lst a.go { display: flex; justify-content: center; gap: 6px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+    border-radius: 9px; padding: 9px 12px; font-size: 13.5px; }
+  .lst a.go:hover { filter: brightness(1.1); }
+  .lst a.go span { opacity: .75; font-weight: 500; }
+  .sites-note { color: var(--text-secondary); font-size: 12.5px; line-height: 1.45; margin-top: 6px; }
   .searching { animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: .45; } }
   @media (prefers-reduced-motion: reduce) { .searching { animation: none; } }
@@ -740,7 +782,7 @@ async function openCounty(g, fly = false) {
     </div>
     <div class="why num">Overall score ${r.score.toFixed(0)}, weighted power ${share("power")}% · water ${share("water")}% · land ${share("land")}%</div>
 
-    <div class="card" id="sitesCard"><h4>For sale now<span class="est">Live search</span></h4><div class="sub searching">Searching listings…</div></div>
+    <div class="card" id="sitesCard"><h4>For sale now</h4><div class="sub searching">Finding sites for sale…</div></div>
 
     ${costCard}
 
@@ -809,24 +851,80 @@ async function loadSites(g, seq) {
   try { d = await getJSON(`/api/sites/${g}?min_mw=${state.minMw}&` + q()); }
   catch (e) { d = { status: "error", reason: "Couldn’t reach the server." }; }
   const el = box(); if (!el) return;
-  const need = d.need ? `${fmt(d.need.acres)}+ acres${d.need.kv ? ` near a ${d.need.kv} kV line` : ""}, for ${fmtMW(d.need.mw)}` : "";
-  const links = (d.links || []).map(l => `<a class="lnk-i" href="${safeUrl(l.url)}" target="_blank" rel="noopener">${l.label} ↗</a>`).join(" · ");
-  const head = `<h4>For sale now<span class="est">Live search</span></h4>${need ? `<div class="sub">Looking for ${need}</div>` : ""}`;
-  if (d.status !== "ok") {
+  const need = d.need || null;
+  const needTxt = need ? `${fmt(need.acres)}+ acres${need.kv ? ` near a ${need.kv} kV line` : ""}, for ${fmtMW(need.mw)}` : "";
+  const links = (d.links || []).map(l => `<a class="lnk-i" href="${safeUrl(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join(" · ");
+  const when = d.status === "snapshot" && d.checked ? new Date(d.checked + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+    : d.searched_at ? new Date(d.searched_at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  const tag = d.status === "snapshot" ? `Checked ${when.replace(/,? \d{4}$/, "")}` : "Live search";
+  const head = `<h4>For sale now<span class="est">${tag}</span></h4>${needTxt ? `<div class="sub">Looking for ${needTxt}</div>` : ""}`;
+  if (d.status !== "ok" && d.status !== "snapshot") {
     el.innerHTML = `${head}<p class="rng" style="margin:8px 0">${esc(d.reason || "Live search is off.")} Search these yourself:</p><div>${links}</div>`;
     return;
   }
-  const money = v => v == null ? "Price not listed" : fmtMoney(v);
-  const items = d.sites.map(x => `
-    <li class="site">
-      <a href="${safeUrl(x.url)}" target="_blank" rel="noopener">${esc(x.name)} ↗</a>
-      <div class="rng num">${x.acres != null ? fmt(x.acres) + " acres" : "Size not listed"} · ${money(x.price_usd)} · ${esc(x.location)} · ${esc(x.source)}</div>
-      <div class="fit">${esc(x.fit)}</div>
-      <div class="rng">Check: ${esc(x.check)}${x.still_listed ? "" : " Not confirmed as still listed."}</div>
-    </li>`).join("");
-  el.innerHTML = `${head}${d.sites.length ? `<ul class="sites">${items}</ul>` : `<p class="rng" style="margin:8px 0">No listing found that fits. ${esc(d.note)}</p>`}
-    <div class="rng" style="margin-top:10px">Found by web search ${new Date(d.searched_at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}. Listings change fast. Confirm with the broker.</div>
-    <div style="margin-top:6px">${links}</div>`;
+  const sites = d.sites || [];
+  const allSmall = need && sites.length && sites.every(x => x.acres != null && x.acres < need.acres);
+  const notes = [d.note, allSmall ? `None is big enough for the full ${fmtMW(need.mw)} campus. These are the largest found.` : ""].filter(Boolean);
+  el.innerHTML = `${head}
+    ${notes.length ? `<div class="sites-note">${notes.map(esc).join(" ")}</div>` : ""}
+    ${sites.length ? `<div class="lsts">${sites.map(x => siteBox(x, need)).join("")}</div>` : `<p class="rng" style="margin:8px 0">No listing found that fits.</p>`}
+    <div class="rng" style="margin-top:12px">${d.status === "snapshot" ? `Read from the listing pages on ${when}.` : `Found by web search ${when}.`} Listings change fast. Confirm with the broker.</div>
+    <div style="margin-top:6px">More: ${links}</div>`;
+}
+const SQFT_PER_ACRE = 43560;
+const fmtSqft = v => v >= 1e6 ? (v / 1e6).toFixed(1) + "M sq ft" : fmt(v) + " sq ft";
+const fmtAc = v => (v >= 100 ? fmt(v) : d3.format(",.1~f")(v)) + " ac";
+// survey-plat sketch: the lot drawn to scale against the acres this campus needs (shown when there is no photo)
+function plat(x, need) {
+  const W = 400, H = 160, pad = 16, side = H - 2 * pad;
+  const grid = d3.range(0, W, 20).map(v => `<line class="grid" x1="${v}" y1="0" x2="${v}" y2="${H}"/>`).join("") + d3.range(0, H, 20).map(v => `<line class="grid" x1="0" y1="${v}" x2="${W}" y2="${v}"/>`).join("");
+  if (x.acres == null || !need) return `<svg class="plat" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${grid}<text class="big" x="${W / 2}" y="${H / 2}" text-anchor="middle">Lot size not listed</text></svg>`;
+  const big = Math.max(x.acres, need.acres), s = a => side * Math.sqrt(a / big);
+  const ls = Math.max(3, s(x.acres)), ns = s(need.acres), x0 = pad + 6, y1 = H - pad;
+  const full = x.acres >= need.acres;
+  return `<svg class="plat" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${grid}
+    <rect class="need" x="${x0}" y="${y1 - ns}" width="${ns}" height="${ns}" rx="2"/>
+    <rect class="lot ${full ? "full" : ""}" x="${x0}" y="${y1 - ls}" width="${ls}" height="${ls}" rx="2"/>
+    <text class="big" x="${x0 + side + 18}" y="${H / 2 - 6}">${fmtAc(x.acres)} lot</text>
+    <text x="${x0 + side + 18}" y="${H / 2 + 14}">Dashed: ${fmtAc(need.acres)} campus</text>
+    <text x="${x0 + side + 18}" y="${H / 2 + 32}">Drawn to scale</text></svg>`;
+}
+function siteBox(x, need) {
+  const open = x.status === "for sale";
+  const perAcre = x.price_usd != null && x.acres ? `${fmtMoney(x.price_usd / x.acres)} per acre` : "";
+  const price = x.price_usd != null ? fmtMoney(x.price_usd) : (x.price_text || "Price not listed");
+  const fact = (label, val, sub) => val == null ? `<div class="na"><small>${label}</small><b>Not listed</b></div>` : `<div><small>${label}</small><b>${val}</b>${sub ? `<i>${sub}</i>` : ""}</div>`;
+  const bldg = x.sq_ft != null ? fmtSqft(x.sq_ft) : x.kind === "land" ? "None listed" : null;
+  let fit = "";
+  if (need && x.acres != null) {
+    const mw = x.acres / CFG.acres_per_mw, pct = Math.min(1, x.acres / need.acres), full = x.acres >= need.acres;
+    fit = `<div><div class="fit">${full ? `Big enough for the full ${fmtMW(need.mw)} campus` : `Room for about ${fmtMW(mw)} of the ${fmtMW(need.mw)} campus`}</div>
+      <div class="fitbar" role="img" aria-label="${Math.round(pct * 100)}% of the land needed"><i class="${full ? "full" : ""}" style="width:${Math.max(2, pct * 100)}%"></i></div></div>`;
+  } else if (need) fit = `<div class="fit">Lot size not listed, so the fit is unknown.</div>`;
+  const img = x.image_url && /^https:\/\//i.test(x.image_url)
+    ? `<img src="${esc(x.image_url)}" alt="Listing photo: ${esc(x.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
+  return `<article class="lst">
+    <div class="media">${plat(x, need)}${img}
+      <div class="tags"><span class="tag ${open ? "" : "unclear"}"><span class="d"></span>${open ? "For sale" : "Status unclear"}</span>
+        <span class="tag r">${x.kind === "building" ? "Building" : "Land"}${x.photo_on_listing ? " · Photos on listing" : ""}</span></div>
+    </div>
+    <div class="body">
+      <div><div class="t">${esc(x.name)}</div><div class="loc">${esc(x.location)} · ${esc(x.source)}</div></div>
+      <div class="price num"><b>${esc(price)}</b>${perAcre ? `<span>${perAcre}</span>` : ""}</div>
+      <div class="facts num">
+        ${fact("Land", x.acres != null ? fmtAc(x.acres) : null, x.acres != null ? fmtSqft(x.acres * SQFT_PER_ACRE) : "")}
+        ${fact("Building", bldg, "")}
+        ${fact("Zoning", x.zoning ? esc(x.zoning) : null, "")}
+      </div>
+      ${fit}
+      ${(x.facilities || []).length ? `<ul class="chips" aria-label="Facilities">${x.facilities.map(f => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+      ${(x.highlights || []).length ? `<ul class="hl">${x.highlights.map(h => `<li>${esc(h)}</li>`).join("")}</ul>` : ""}
+      ${x.fit && !x.highlights?.length ? `<div class="fit">${esc(x.fit)}</div>` : ""}
+      ${x.check ? `<div class="chk"><b>Check</b> ${esc(x.check)}</div>` : ""}
+      ${x.broker || x.updated ? `<div class="by">${[x.broker && esc(x.broker), x.updated && esc(/^[A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(x.updated) ? "Updated " + x.updated : x.updated)].filter(Boolean).join(" · ")}</div>` : ""}
+      <a class="go" href="${safeUrl(x.url)}" target="_blank" rel="noopener">View listing ↗ <span>${esc(x.source)}</span></a>
+    </div>
+  </article>`;
 }
 function closeDetail() { $("#detail").classList.remove("open"); state.sel = null; detailSeq++; paint(); pinG.selectAll("g").classed("on", false); }
 function goUp() {  // Esc: close the panel first, then step back up a level

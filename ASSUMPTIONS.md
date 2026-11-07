@@ -61,8 +61,11 @@ Cost per year = energy + capacity + water and sewer + a yearly charge on the lan
 | # | Assumption | Reason |
 |---|---|---|
 | F1 ⚑ | **A site needs 1 acre per MW for the campus you set (Minimum size, at least 100 MW), capped at what the county can host.** It also needs a 230 kV+ line nearby (the county's highest, within about 5 miles), industrial zoning or land that could be rezoned, and it must be for sale, not lease-only. | It's the same land rule as L2, applied to one parcel. |
-| F2 | **Listings come from a live web search by Claude, not from scraping listing sites.** Each pick links to the page it came from. A link that no search returned is dropped. "Not confirmed as still listed" means the page wasn't opened. | LoopNet, Crexi and LandWatch don't allow automated scraping. A search result is the closest thing to a feed we can use. |
+| F2 | **Live listings come from a web search by Claude, which opens each listing page to read it.** Each pick links to the page it came from. A link that no search returned is dropped. "Status unclear" means the page wasn't opened or didn't show a status. | It reads the same public pages a person would, one county at a time, instead of bulk scraping. |
 | F3 | **Results are cached for 6 hours per county and size.** | Listings change daily. The cache keeps repeat clicks fast and cheap. |
+| F4 ⚑ | **Saved listings for 11 counties were read from the listing pages on Nov 7, 2026 and are shown with that date.** The counties are the top 10 at 850 MW with default inputs, plus King County. Price, size, zoning, utilities and details are as each page showed them. The "Check" line on each box is ours. Listings marked off market, pending or ground lease were left out. "Status unclear" means the page didn't show a status. | Live search needs an API key. A dated snapshot shows real listings without one, and says how old they are. |
+| F5 | **When a listing gives no lot size, the fit is unknown, not zero.** "Room for about X MW" is the lot's acres at 1 acre per MW (F1). The drawing shows the lot and the campus to scale. | Missing data never shows as zero. |
+| F6 | **Photos load from the listing site.** The hosted copy can't load outside images, so it shows the to-scale drawing and a "Photos on listing" tag instead. | The photo belongs to the listing; the link takes you to it. |
 
 ## Scoring
 | # | Assumption | Reason |

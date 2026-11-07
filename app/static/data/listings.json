@@ -1,0 +1,869 @@
+{
+ "checked": "2026-11-07",
+ "method": "Read from public listing pages on the date above. Facts are as each page shows them; 'check' is ours.",
+ "counties": {
+  "04015": {
+   "county": "Mohave County, AZ",
+   "note": "",
+   "sites": [
+    {
+     "name": "559 acres at I-40 and SR 93",
+     "url": "https://www.commercialsearch.com/commercial-property/us/az/kingman/559-acres-nw-of-i-40-sr-93/",
+     "kind": "land",
+     "acres": 559,
+     "sq_ft": null,
+     "price_usd": 9242659,
+     "price_text": "$9,242,659",
+     "location": "NW of I-40 and SR 93, Kingman",
+     "zoning": null,
+     "facilities": [
+      "Electric along SR 93",
+      "Water analysis done for the area",
+      "Frontage on both sides of SR 93",
+      "Next to the I-40 / SR 93 interchange",
+      "Near Kingman Airport and rail"
+     ],
+     "highlights": [
+      "Gently sloping, suits development",
+      "Marketed for logistics, industrial and mixed use",
+      "No known liens"
+     ],
+     "image_url": "https://cdn.commercialsearch.com/images/32C2D1EF-CC10-45AB-AAD4-FF43F5FF2C45/35390973.jpeg?height=1350",
+     "status": "for sale",
+     "broker": "John Filli, SIOR, NAI Horizon",
+     "updated": "Oct 8, 2026",
+     "check": "Zoning isn't shown. Ask about rezoning and the distance to the 500 kV line.",
+     "source": "commercialsearch.com"
+    },
+    {
+     "name": "350 acres on I-40 with BNSF rail",
+     "url": "https://www.landbrokermls.com/property/999278526/350-39-acres-of-land-for-sale-in-yucca-az",
+     "kind": "land",
+     "acres": 350.39,
+     "sq_ft": null,
+     "price_usd": 6200000,
+     "price_text": "$6,200,000",
+     "location": "I-40 at the Old Trails exit, Yucca",
+     "zoning": "M-AR (listing says it can change to MX)",
+     "facilities": [
+      "I-40 interchange at Old Trails exit",
+      "Dual BNSF main line crosses the land",
+      "In the I-40 industrial corridor"
+     ],
+     "highlights": [
+      "Opportunity zone",
+      "The two lots sell together",
+      "Distribution and transload uses welcome, per listing"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "David Hollingsworth, Keller Williams Arizona Living Realty",
+     "updated": "Oct 29, 2026",
+     "check": "Power and water service aren't stated.",
+     "source": "landbrokermls.com"
+    },
+    {
+     "name": "214 acres, former CAL-ARI industrial park",
+     "url": "https://loopnet.com/Listing/I-40-Kingman-AZ/3967500",
+     "kind": "land",
+     "acres": 214.36,
+     "sq_ft": null,
+     "price_usd": 5475000,
+     "price_text": "$5,475,000",
+     "location": "I-40 Exit 25, Kingman",
+     "zoning": "MX/36A (heavy manufacturing)",
+     "facilities": [
+      "BNSF rail spur connection available",
+      "Electric and natural gas from UniSource",
+      "Potable water from the aquifer",
+      "Direct I-40 access at Exit 25"
+     ],
+     "highlights": [
+      "Opportunity zone",
+      "Marketed for solar, warehouse or manufacturing"
+     ],
+     "image_url": null,
+     "status": "unclear",
+     "broker": null,
+     "updated": "On market since Aug 13, 2024",
+     "check": "LoopNet doesn't show a current status. Confirm it's still for sale.",
+     "source": "loopnet.com"
+    }
+   ]
+  },
+  "04027": {
+   "county": "Yuma County, AZ",
+   "note": "",
+   "sites": [
+    {
+     "name": "160 acres heavy industrial on I-8",
+     "url": "https://www.commercialcafe.com/commercial-property/us/az/yuma/citrus-property-county-19th-street-and-avenue-a/",
+     "kind": "land",
+     "acres": 160.12,
+     "sq_ft": null,
+     "price_usd": 7205400,
+     "price_text": "$7,205,400",
+     "location": "County 19th St and Avenue A, Yuma",
+     "zoning": "Heavy Industrial",
+     "facilities": [
+      "Near the planned APS TS-8 substation",
+      "Direct access to I-8",
+      "Union Pacific rail",
+      "Foreign trade zone",
+      "1,200 gpm irrigation well"
+     ],
+     "highlights": [
+      "$45,000 per acre",
+      "Now a citrus orchard with drip irrigation",
+      "Near the planned BrightNight solar project"
+     ],
+     "image_url": "https://cdn.commercialcafe.com/images/CFF37FA9-7787-4D92-91D9-385FDC06B3ED/13113369.jpeg?height=1350",
+     "status": "for sale",
+     "broker": "Patrick Hodges, A. T. Pancrazi Real Estate Services",
+     "updated": "Sep 17, 2026",
+     "check": "The substation is planned, not built. Ask APS about timing and capacity.",
+     "source": "commercialcafe.com"
+    },
+    {
+     "name": "140 acres in Tacna",
+     "url": "https://www.crexi.com/properties/2311165/arizona-yuma-140-acres-in-tacna",
+     "kind": "land",
+     "acres": 140,
+     "sq_ft": null,
+     "price_usd": 1200000,
+     "price_text": "$1,200,000",
+     "location": "Old US 80, Tacna area, Yuma",
+     "zoning": null,
+     "facilities": [
+      "Rail nearby, per listing",
+      "Next to a large energy plant under development, per listing",
+      "Two landing strips nearby"
+     ],
+     "highlights": [
+      "$8,571 per acre",
+      "For sale by owner",
+      "Energy, industrial and distribution uses allowed, per listing"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Realty ONE Group (Kevin Zellmer, Heather Chase)",
+     "updated": "Nov 1, 2026",
+     "check": "No zoning code is shown. Confirm utilities reach the site.",
+     "source": "crexi.com"
+    },
+    {
+     "name": "87 acres light industrial, Avenue 4E",
+     "url": "https://www.commercialcafe.com/commercial-property/us/az/yuma/4-parcels-on-prime-industrial-area-avenue-4e/",
+     "kind": "land",
+     "acres": 86.63,
+     "sq_ft": null,
+     "price_usd": null,
+     "price_text": "Call for pricing",
+     "location": "Avenue 4E, Yuma",
+     "zoning": "LI and RA-10",
+     "facilities": [
+      "Access to I-8",
+      "Frontage on Avenues 3E and 4E and County 12th St"
+     ],
+     "highlights": [
+      "Four parcels of 10 to 40 acres, for phasing",
+      "19,000+ cars a day on Avenue 3E"
+     ],
+     "image_url": "https://cdn.commercialcafe.com/images/A39EA3AF-F5AA-4852-BAE1-EBDD92C5BF97/35435366.jpg?height=1350",
+     "status": "for sale",
+     "broker": "Thomas Pancrazi, A. T. Pancrazi Real Estate Services",
+     "updated": "Sep 17, 2026",
+     "check": "Power and water aren't stated.",
+     "source": "commercialcafe.com"
+    }
+   ]
+  },
+  "35045": {
+   "county": "San Juan County, NM",
+   "note": "",
+   "sites": [
+    {
+     "name": "70 acres mixed use, Pinon Hills Blvd",
+     "url": "https://www.landsearch.com/properties/2055-pinon-hills-blvd-farmington-nm-87499/4903862",
+     "kind": "land",
+     "acres": 70.21,
+     "sq_ft": null,
+     "price_usd": 1050000,
+     "price_text": "$1,050,000",
+     "location": "2055 Pinon Hills Blvd, Farmington",
+     "zoning": "County; mixed use and general commercial",
+     "facilities": [
+      "City services nearby",
+      "Frontage on W Pinon Hills Blvd"
+     ],
+     "highlights": [
+      "Price cut from $1.2M in June 2026",
+      "Taxes about $9,843 a year"
+     ],
+     "image_url": "https://cdn.landsearch.com/listings/4PMH8/large/farmington-nm-167453634.jpg",
+     "status": "for sale",
+     "broker": "Stephanie Gurule, R1 New Mexico",
+     "updated": "Jun 12, 2026",
+     "check": "Not zoned industrial. Ask about rezoning.",
+     "source": "landsearch.com"
+    },
+    {
+     "name": "66 acres, Twin Peaks Blvd",
+     "url": "https://www.landsearch.com/properties/twin-peaks-blvd-farmington-nm-87401/4996046",
+     "kind": "land",
+     "acres": 65.66,
+     "sq_ft": null,
+     "price_usd": 199500,
+     "price_text": "$199,500",
+     "location": "Twin Peaks Blvd, Farmington",
+     "zoning": null,
+     "facilities": [
+      "Power and water near the south end",
+      "Buried utilities in the street to the south end",
+      "Paved access at the south end"
+     ],
+     "highlights": [
+      "About $3,000 per acre",
+      "A gorge splits the parcel",
+      "Price cut from $250,000"
+     ],
+     "image_url": "https://cdn.landsearch.com/listings/4QBHD/large/farmington-nm-159162912.jpg",
+     "status": "for sale",
+     "broker": "Robert Espinoza Sr, Hayden Outdoors",
+     "updated": "Jul 13, 2026",
+     "check": "No zoning is shown, and the gorge limits where you can build.",
+     "source": "landsearch.com"
+    },
+    {
+     "name": "59 acres industrial in Farmington",
+     "url": "https://www.landsearch.com/properties/andrea-dr-farmington-nm-87401/5444225",
+     "kind": "land",
+     "acres": 58.89,
+     "sq_ft": null,
+     "price_usd": 625000,
+     "price_text": "$625,000",
+     "location": "Andrea Dr, Farmington",
+     "zoning": "Industrial",
+     "facilities": [
+      "Water and sewer nearby",
+      "Utilities close by",
+      "Concept industrial building plans included",
+      "Chain-link fencing"
+     ],
+     "highlights": [
+      "Inside Farmington city limits",
+      "Future use subject to city zoning approval"
+     ],
+     "image_url": "https://cdn.landsearch.com/listings/4VFdH/large/farmington-nm-177036545.jpg",
+     "status": "for sale",
+     "broker": "Jennifer Bandy, Coldwell Banker Cornerstone",
+     "updated": "Aug 11, 2026",
+     "check": "Power capacity isn't stated.",
+     "source": "landsearch.com"
+    }
+   ]
+  },
+  "53025": {
+   "county": "Grant County, WA",
+   "note": "",
+   "sites": [
+    {
+     "name": "162 acres heavy industrial, Ephrata",
+     "url": "https://www.propertyshark.com/cre/commercial-property/us/wa/ephrata/ephrata-industrial-land/",
+     "kind": "land",
+     "acres": 162.3,
+     "sq_ft": null,
+     "price_usd": 4995000,
+     "price_text": "$4,995,000",
+     "location": "State Route 282, Ephrata",
+     "zoning": "LI (heavy industrial uses permitted)",
+     "facilities": [
+      "Grant County PUD hydropower",
+      "Utility service to the area",
+      "SR 282 frontage, near I-90 and SR 17",
+      "Nearly level",
+      "Near Ephrata airport"
+     ],
+     "highlights": [
+      "Sold from 10 acres up to the full 162",
+      "A second listing shows the same land at $6,995,000"
+     ],
+     "image_url": "https://cdncc.propertyshark.com/images/968ED081-E960-43AF-89FD-EF75EF38FAE3/32911043.jpeg?height=1350",
+     "status": "for sale",
+     "broker": "Chris Sentz, Almon Commercial Real Estate",
+     "updated": "Oct 28, 2026",
+     "check": "The listing leaves utility capacity to the buyer. Ask the PUD about a large load.",
+     "source": "propertyshark.com"
+    },
+    {
+     "name": "59 acres heavy industrial, Moses Lake",
+     "url": "https://www.commercialcafe.com/commercial-property/us/wa/moses-lake/59-acre-heavy-industrial-site-moses-lake-wa/",
+     "kind": "land",
+     "acres": 59.03,
+     "sq_ft": null,
+     "price_usd": 5800000,
+     "price_text": "$5,800,000",
+     "location": "3234 Road N NE, Moses Lake",
+     "zoning": "HI",
+     "facilities": [
+      "Full utilities at the boundary",
+      "Rail served",
+      "At I-90 and SR 17",
+      "Natural gas for on-site power noted"
+     ],
+     "highlights": [
+      "Flat, inside city limits",
+      "Neighbors include REC Silicon, Group14 and Sila",
+      "A 1,000,000 sq ft building is proposed, not built"
+     ],
+     "image_url": "https://cdn.commercialcafe.com/images/CCBE1D52-267C-4205-A580-E6C99F17C0A5/35260588.jpeg?height=1350",
+     "status": "for sale",
+     "broker": "Omar Sadaoui, CCIM, SVN Cornerstone",
+     "updated": "Oct 21, 2026",
+     "check": "Ask the PUD how much power it can deliver here.",
+     "source": "commercialcafe.com"
+    },
+    {
+     "name": "37 acres light industrial, Quincy",
+     "url": "https://www.wicklundre.com/listing/5530582/Road-9-NW-Quincy-WA-98848",
+     "kind": "land",
+     "acres": 36.61,
+     "sq_ft": null,
+     "price_usd": 2950000,
+     "price_text": "$2,950,000",
+     "location": "Road 9 NW, Quincy",
+     "zoning": "Light industrial",
+     "facilities": [
+      "Substation at the property line",
+      "City water and sewer",
+      "Electricity available"
+     ],
+     "highlights": [],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Jeffrey William Hallman, KW NCW",
+     "updated": "Sep 17, 2026",
+     "check": "Ask the PUD whether the substation has room for a large load.",
+     "source": "wicklundre.com"
+    }
+   ]
+  },
+  "41059": {
+   "county": "Umatilla County, OR",
+   "note": "Only 2 found for sale now. A 33-acre industrial parcel in Stanfield is marked off market.",
+   "sites": [
+    {
+     "name": "45 acres at I-84 Exit 182",
+     "url": "https://www.land.com/property/44.99-acres-in-umatilla-county-oregon/25957497",
+     "kind": "land",
+     "acres": 44.99,
+     "sq_ft": null,
+     "price_usd": 1250000,
+     "price_text": "$1,250,000",
+     "location": "Hwy 207 and I-84 (Exit 182), Hermiston",
+     "zoning": "EFU (farm use)",
+     "facilities": [
+      "Irrigation water rights on about 42 acres",
+      "Pivot power, pads and water delivery in place",
+      "Frontage on Hwy 207",
+      "3 miles from the I-84 / I-82 junction"
+     ],
+     "highlights": [
+      "Next to a truck stop and a hotel",
+      "Taxes $457 a year"
+     ],
+     "image_url": "https://assets.land.com/resizedimages/600/0/h/80/w/1-6604964753",
+     "status": "for sale",
+     "broker": null,
+     "updated": "Oct 28, 2026",
+     "check": "Zoned for farm use. Industrial use needs a rezone.",
+     "source": "land.com"
+    },
+    {
+     "name": "75-acre irrigated farm, Golda Rd",
+     "url": "https://old.peoplescompany.com/listings/land-umatilla-county-oregon-75-acres-listing-number-16881",
+     "kind": "land",
+     "acres": 75.38,
+     "sq_ft": 2308,
+     "price_usd": 1250000,
+     "price_text": "$1,250,000",
+     "location": "81450 N Golda Rd, Hermiston",
+     "zoning": "EFU, 40-acre minimum",
+     "facilities": [
+      "Well irrigation, water right from 1969",
+      "Two center pivots included",
+      "Paved county roads",
+      "Home 1,444 sq ft and shop 864 sq ft"
+     ],
+     "highlights": [
+      "68.5 irrigable acres",
+      "The tenant has a right of first refusal"
+     ],
+     "image_url": null,
+     "status": "unclear",
+     "broker": "Adam Woiblet and Braydon Rudolph, AgriBusiness Trading Group",
+     "updated": null,
+     "check": "No status is shown, and the tenant can match any offer. Zoned for farm use.",
+     "source": "old.peoplescompany.com"
+    }
+   ]
+  },
+  "41019": {
+   "county": "Douglas County, OR",
+   "note": "",
+   "sites": [
+    {
+     "name": "15.8 acres M-2 on North Umpqua Hwy",
+     "url": "https://www.loopnet.ca/Listing/0-North-Umpqua-Hwy-Hwy-Roseburg-OR/40586566/",
+     "kind": "land",
+     "acres": 15.81,
+     "sq_ft": null,
+     "price_usd": null,
+     "price_text": "C$2,347,122 (shown in Canadian dollars)",
+     "location": "0 North Umpqua Hwy, Roseburg",
+     "zoning": "MU, M-2 (mixed use, medium industrial)",
+     "facilities": [
+      "Utilities at the property line",
+      "1,100+ ft of highway frontage",
+      "Wetlands mitigated"
+     ],
+     "highlights": [
+      "Shovel ready, per listing",
+      "May qualify for Roseburg urban renewal"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": null,
+     "updated": "On market since May 19, 2026",
+     "check": "The price is in Canadian dollars. Ask for the US price.",
+     "source": "loopnet.ca"
+    },
+    {
+     "name": "15.2 acres M2, Diamond Lake Blvd",
+     "url": "https://paperhouses.co/listing/9167907",
+     "kind": "land",
+     "acres": 15.18,
+     "sq_ft": null,
+     "price_usd": 599000,
+     "price_text": "$599,000",
+     "location": "4094 NE Diamond Lake Blvd, Roseburg",
+     "zoning": "M2",
+     "facilities": [
+      "Utilities at the highway",
+      "60 ft right-of-way easement",
+      "Off I-5"
+     ],
+     "highlights": [
+      "Owner financing possible",
+      "About $39,500 per acre"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": null,
+     "updated": "Added Dec 11, 2024",
+     "check": "The listing is almost two years old. Confirm it's still available.",
+     "source": "paperhouses.co"
+    },
+    {
+     "name": "15.1 acres M2 with a building, Old Hwy 99",
+     "url": "https://realmo.com/listing/9062276",
+     "kind": "building",
+     "acres": 15.14,
+     "sq_ft": 1664,
+     "price_usd": 900000,
+     "price_text": "$900,000",
+     "location": "8017 Old Highway 99, Roseburg",
+     "zoning": "M2",
+     "facilities": [
+      "1,664 sq ft building from 1953",
+      "Usable as an office"
+     ],
+     "highlights": [
+      "Called the last large parcel in the Wilbur area"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Neil Hummel",
+     "updated": "Added Dec 11, 2024",
+     "check": "The listing is almost two years old. Confirm it's still available.",
+     "source": "realmo.com"
+    }
+   ]
+  },
+  "53057": {
+   "county": "Skagit County, WA",
+   "note": "",
+   "sites": [
+    {
+     "name": "40 acres light industrial, Port of Skagit",
+     "url": "https://www.showcase.com/peterson-road-burlington-wa-98233/36504132/",
+     "kind": "land",
+     "acres": 40.4,
+     "sq_ft": null,
+     "price_usd": null,
+     "price_text": "Price on request",
+     "location": "Peterson Road, Burlington",
+     "zoning": "BR Light Industrial",
+     "facilities": [
+      "Puget Sound Energy power, 208/480 V conduits",
+      "12-inch water line",
+      "8-inch sewer, installed",
+      "2-inch natural gas line",
+      "Fiber, cable and phone"
+     ],
+     "highlights": [
+      "82.6 more acres available to the west",
+      "Near I-5"
+     ],
+     "image_url": "https://images1.showcase.com/i2/fZUtsUGG5wrnb5HhKFOyR-J_N5eemrPhfXFY3uuwA-M/116/image.jpg",
+     "status": "for sale",
+     "broker": "Shaun Gibbs, Port of Skagit",
+     "updated": null,
+     "check": "The Port owns it, so a sale needs Port Commission approval.",
+     "source": "showcase.com"
+    },
+    {
+     "name": "10 acres with industrial buildings, Anacortes",
+     "url": "https://www.commercialmls.com/Search/ListingDetailsFull/687811",
+     "kind": "building",
+     "acres": 10.0,
+     "sq_ft": 5104,
+     "price_usd": 1699000,
+     "price_text": "$1,699,000",
+     "location": "9720-9748 Padilla Heights Rd, Anacortes",
+     "zoning": "LM1",
+     "facilities": [
+      "Over 1,000 amps across two buildings",
+      "Water and storm sewer",
+      "Dock-high and semi-dock doors"
+     ],
+     "highlights": [
+      "A rented house brings $1,775 a month",
+      "Room for more buildings"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Robert Serviss III, RE/MAX Elite",
+     "updated": "Apr 28, 2026",
+     "check": "Power on site is far below data center scale.",
+     "source": "commercialmls.com"
+    },
+    {
+     "name": "8.5 acres heavy industrial off Hwy 20",
+     "url": "https://krishnarealty.com/Skagit/WA/8595-smith-lane-98221/NWM2398336",
+     "kind": "land",
+     "acres": 8.52,
+     "sq_ft": null,
+     "price_usd": null,
+     "price_text": "Price not shown",
+     "location": "8595 Smith Lane, Anacortes",
+     "zoning": "Heavy manufacturing",
+     "facilities": [
+      "Four lots side by side",
+      "Just off Hwy 20",
+      "15 minutes to I-5"
+     ],
+     "highlights": [
+      "Level land; the house is a tear-down"
+     ],
+     "image_url": null,
+     "status": "unclear",
+     "broker": "Kelli Lang, RE/MAX Gateway",
+     "updated": "Jun 26, 2025",
+     "check": "This page was last updated in June 2025. Confirm it's still for sale.",
+     "source": "krishnarealty.com"
+    }
+   ]
+  },
+  "41039": {
+   "county": "Lane County, OR",
+   "note": "",
+   "sites": [
+    {
+     "name": "44 acres industrial on I-5, Creswell",
+     "url": "https://www.commercialcafe.com/commercial-property/us/or/creswell/522-south-mill-street/",
+     "kind": "land",
+     "acres": 44.07,
+     "sq_ft": 63560,
+     "price_usd": 14100000,
+     "price_text": "$14,100,000",
+     "location": "522 South Mill St, Creswell",
+     "zoning": null,
+     "facilities": [
+      "Borders I-5, under a minute to the interchange",
+      "63,560 sq ft of buildings on the south side",
+      "Flat"
+     ],
+     "highlights": [
+      "About $56,000 a month of rent from the south side",
+      "About 30 more acres can be added (74.6 in all)",
+      "1,500+ ft of highway frontage"
+     ],
+     "image_url": "https://cdn.commercialcafe.com/images/C00D402D-C62A-4398-B489-B92CD6C0BBD8/31452922.jpeg",
+     "status": "for sale",
+     "broker": "Clayton Madey, SIOR, Macadam Forbes",
+     "updated": "Oct 23, 2026",
+     "check": "Zoning and utilities aren't shown.",
+     "source": "commercialcafe.com"
+    },
+    {
+     "name": "Six industrial buildings, 203,635 sq ft, Eugene",
+     "url": "https://www.commercialcafe.com/commercial-property/us/or/eugene/industrial-buildings-totaling-203-635-sf/",
+     "kind": "building",
+     "acres": 10.59,
+     "sq_ft": 203635,
+     "price_usd": null,
+     "price_text": "Subject to offer",
+     "location": "311 Chambers St, Eugene",
+     "zoning": null,
+     "facilities": [
+      "Major power upgrades in 2021",
+      "Sprinkler and roof upgrades in 2021",
+      "Near OR-99, I-105 and I-5"
+     ],
+     "highlights": [
+      "The page gives the lot as 10.59 acres, and the description says 5.58",
+      "Sold through Hilco Real Estate Sales"
+     ],
+     "image_url": "https://cdn.commercialcafe.com/images/F26736B4-02D1-457B-BF60-2B7874B01A3C/30373181.jpeg",
+     "status": "for sale",
+     "broker": "Chet Evans, Hilco",
+     "updated": "Nov 2, 2026",
+     "check": "The lot size on the page conflicts. Ask the broker.",
+     "source": "commercialcafe.com"
+    },
+    {
+     "name": "11.7 acres heavy industrial, Springfield",
+     "url": "https://www.crexi.com/properties/2148246/oregon-42nd-st-hwy-126",
+     "kind": "land",
+     "acres": 11.68,
+     "sq_ft": null,
+     "price_usd": 3299000,
+     "price_text": "$3,299,000",
+     "location": "42nd St and Hwy 126, Springfield",
+     "zoning": "Heavy Industrial",
+     "facilities": [
+      "Utilities to the curb",
+      "Level and shovel ready",
+      "Near Hwy 126, minutes to I-5"
+     ],
+     "highlights": [
+      "Includes a 3.5-acre water retention parcel",
+      "A pile of base aggregate comes with it"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "John Erving, Eugene Commercial Real Estate",
+     "updated": "Jul 24, 2026",
+     "check": "Power capacity isn't stated.",
+     "source": "crexi.com"
+    }
+   ]
+  },
+  "53033": {
+   "county": "King County, WA",
+   "note": "",
+   "sites": [
+    {
+     "name": "Emerald Logistics, 201,955 sq ft on 16 acres",
+     "url": "https://www.commercialmls.com/Search/ListingDetailsFull/695362",
+     "kind": "building",
+     "acres": 16.0,
+     "sq_ft": 201955,
+     "price_usd": null,
+     "price_text": "Price not listed",
+     "location": "6214 S 287th St, Auburn",
+     "zoning": "M-1",
+     "facilities": [
+      "36 ft clear height",
+      "Water, electricity and storm sewer",
+      "144 parking spaces"
+     ],
+     "highlights": [
+      "Status shown as Available",
+      "Lot is 696,973 sq ft"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Andrew Stark and Zac Snedeker, CBRE",
+     "updated": "Oct 27, 2025",
+     "check": "No price is shown, and the page was last changed in October 2025.",
+     "source": "commercialmls.com"
+    },
+    {
+     "name": "65,858 sq ft warehouse, Kent",
+     "url": "https://www.commercialcafe.com/commercial-property/us/wa/kent/mbi-building-1/",
+     "kind": "building",
+     "acres": null,
+     "sq_ft": 65858,
+     "price_usd": 16200000,
+     "price_text": "$16,200,000",
+     "location": "7036-7048 S 190th St, Kent",
+     "zoning": null,
+     "facilities": [
+      "24 ft clear height",
+      "7 dock-high doors",
+      "Secured side yard",
+      "Warehouse racking available"
+     ],
+     "highlights": [
+      "Also offered for lease",
+      "The description gives 44,602 sq ft industrial plus 4,760 sq ft office"
+     ],
+     "image_url": "https://cdn.commercialcafe.com/images/23E51123-E068-4936-9C60-FA54E9A57313/29956075.jpeg",
+     "status": "for sale",
+     "broker": "Arie Salomon, SIOR, CCIM, NAI Puget Sound Properties",
+     "updated": "Sep 17, 2026",
+     "check": "The lot size isn't shown, and the page gives two building sizes.",
+     "source": "commercialcafe.com"
+    },
+    {
+     "name": "3.5 acres industrial land, Kent",
+     "url": "https://www.commercialmls.com/Search/ListingDetailsFull/630192",
+     "kind": "land",
+     "acres": 3.53,
+     "sq_ft": null,
+     "price_usd": null,
+     "price_text": "Subject to offer",
+     "location": "7601 S 190th St, Kent",
+     "zoning": "I3 (the comments say I2)",
+     "facilities": [
+      "Rail could be extended to the site",
+      "Flat",
+      "Near state highways and I-5"
+     ],
+     "highlights": [
+      "About 152,195 sq ft over 4 tax parcels",
+      "End of a cul-de-sac"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Scott Carter, David Cahill and Connor Raffety",
+     "updated": "Apr 27, 2026",
+     "check": "No price is shown, and the zoning on the page conflicts.",
+     "source": "commercialmls.com"
+    }
+   ]
+  },
+  "53073": {
+   "county": "Whatcom County, WA",
+   "note": "Only 1 found for sale now. A 35-acre Pacific Hwy parcel is pending, and a 4-acre Ferndale lot is a ground lease.",
+   "sites": [
+    {
+     "name": "2.4 acres light industrial on I-5",
+     "url": "https://www.commercialmls.com/Search/ListingDetailsFull/625586",
+     "kind": "land",
+     "acres": 2.4,
+     "sq_ft": null,
+     "price_usd": 695000,
+     "price_text": "$695,000",
+     "location": "4434 Pacific Hwy, Bellingham",
+     "zoning": "LII",
+     "facilities": [
+      "Frontage and access on Pacific Hwy",
+      "Retail or industrial use"
+     ],
+     "highlights": [
+      "Seen from both directions of I-5",
+      "Lot is 104,544 sq ft"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Gabrielle Balolia, RE/MAX Whatcom County",
+     "updated": "Apr 5, 2026",
+     "check": "Far too small for a campus, and utilities aren't shown.",
+     "source": "commercialmls.com"
+    }
+   ]
+  },
+  "04005": {
+   "county": "Coconino County, AZ",
+   "note": "",
+   "sites": [
+    {
+     "name": "447-acre ranch on I-40 near Williams",
+     "url": "https://alb.acrevalue.com/land-for-sale-near-me/2459-starlit-prairie-road-williams-az-86046/0d1a6b0b-81b1-4dcd-b9e7-0f3c0456c963",
+     "kind": "land",
+     "acres": 446.8,
+     "sq_ft": 6964,
+     "price_usd": 9500000,
+     "price_text": "$9,500,000",
+     "location": "2459 Starlit Prairie Rd, Williams (I-40 Exit 171)",
+     "zoning": null,
+     "facilities": [
+      "2 wells, water under 100 ft",
+      "I-40 Exit 171, then a paved county road",
+      "Cabin 3,900, caretaker home 1,080 and barn 1,760 sq ft"
+     ],
+     "highlights": [
+      "Borders Kaibab National Forest on three sides",
+      "Level to gently rolling, about 6,950 ft up",
+      "A ranch, not an industrial listing"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Paul Groseta and Traegen Knight, Headquarters West",
+     "updated": "Jun 11, 2025",
+     "check": "Ranch land with no industrial zoning. A rezone would be needed.",
+     "source": "acrevalue.com"
+    },
+    {
+     "name": "23,469 sq ft building on 7.5 acres, Bellemont",
+     "url": "https://www.officespace.com/az/flagstaff/2126805-9147-w-route-66",
+     "kind": "building",
+     "acres": 7.52,
+     "sq_ft": 23469,
+     "price_usd": null,
+     "price_text": "Price not shown (sale or lease)",
+     "location": "9147 W Route 66, Bellemont",
+     "zoning": "Commercial Heavy (Coconino County)",
+     "facilities": [
+      "All utilities to the building",
+      "Natural gas heat",
+      "Two water tanks for storage and fire",
+      "903 ft of I-40 frontage",
+      "Fully sprinklered"
+     ],
+     "highlights": [
+      "Built in 2009 for RV sales and service",
+      "5 pull-through bays with roll-up doors",
+      "On the market almost 4 years"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Colliers Flagstaff (Dennis Kelly, Kevin Call, Stephen Thompson)",
+     "updated": null,
+     "check": "No sale price is shown, and it's also offered for lease.",
+     "source": "officespace.com"
+    },
+    {
+     "name": "10 acres industrial M-1, Bellemont",
+     "url": "https://realmo.com/listing-m/13833-w-old-rte-66-bellemont-az-86015/2278205076629058603",
+     "kind": "land",
+     "acres": 9.98,
+     "sq_ft": null,
+     "price_usd": 3049200,
+     "price_text": "$3,049,200",
+     "location": "13833 W Old Route 66, Bellemont",
+     "zoning": "M-1-10000",
+     "facilities": [
+      "Electric service to the property",
+      "Gas service to the property",
+      "Private water",
+      "Phone available"
+     ],
+     "highlights": [
+      "Listed Jan 18, 2026",
+      "Sewer and road access not shown"
+     ],
+     "image_url": null,
+     "status": "for sale",
+     "broker": "Kenneth Berkhoff, 1st Brokers Realty",
+     "updated": "Jan 18, 2026",
+     "check": "Far too small for a campus. Sewer isn't shown.",
+     "source": "realmo.com"
+    }
+   ]
+  }
+ }
+}

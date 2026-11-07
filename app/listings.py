@@ -1,17 +1,20 @@
-"""Live sites for sale: three parcels or buildings in a county that fit the campus, found by web search.
+"""Sites for sale: up to three parcels or buildings in a county that fit the campus.
 
-Claude searches the web with Anthropic's server-side web search and web fetch tools,
-opens the listing pages to check they are still for sale, and returns its picks through a strict tool.
-We do not scrape listing sites (LoopNet, Crexi and LandWatch bar automated access); every URL we return
-must come from a search result or a page Claude fetched, so a made-up link can never reach the screen.
+Live: Claude searches the web with Anthropic's server-side web search and web fetch tools, opens each
+listing page to read its size, price, utilities and photo, and returns its picks through a strict tool.
+Every URL we return must come from a search result or a page Claude fetched, so a made-up link can never
+reach the screen. Needs ANTHROPIC_API_KEY (or another credential the Anthropic SDK finds) and
+`pip install anthropic`.
 
-Needs ANTHROPIC_API_KEY (or another credential the Anthropic SDK finds) and `pip install anthropic`.
-Without one, the endpoint answers status "unavailable" and the app shows search links instead.
+Snapshot: app/static/data/listings.json holds listings read from public listing pages on a stated date,
+for the top counties. It answers when live search is off or fails, marked with its date.
+Without either, the endpoint answers status "unavailable" and the app shows search links instead.
 """
 from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 import threading
 import time
 from datetime import datetime, timezone
@@ -20,12 +23,13 @@ from urllib.parse import quote_plus, urlsplit
 MODEL = "claude-opus-5-5"
 CACHE_TTL_S = 6 * 3600          # listings move; re-search a county after 6 hours
 MAX_TURNS = 6
+SNAPSHOT = Path(__file__).parent / "static" / "data" / "listings.json"
 _cache: dict[tuple, tuple[float, dict]] = {}
 _lock = threading.Lock()
 
 SUBMIT_TOOL = {
     "name": "submit_sites",
-    "description": "Return your final picks: up to 3 sites for sale right now. Call this once, at the end.",
+    "description": "Return your final picks: up to 3 sites for sale right now, best first. Call this once, at the end.",
     "strict": True,
     "input_schema": {
         "type": "object",
@@ -34,18 +38,27 @@ SUBMIT_TOOL = {
         "properties": {
             "sites": {
                 "type": "array",
-                "maxItems": 3,
+                "description": "Up to 3 sites",
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["name", "url", "kind", "acres", "price_usd", "location", "fit", "check", "still_listed"],
+                    "required": ["name", "url", "kind", "acres", "sq_ft", "price_usd", "price_text", "location", "zoning",
+                                 "facilities", "highlights", "image_url", "fit", "check", "still_listed"],
                     "properties": {
                         "name": {"type": "string", "description": "Listing title, short"},
                         "url": {"type": "string", "description": "The listing page URL, exactly as found"},
                         "kind": {"type": "string", "enum": ["land", "building"]},
                         "acres": {"type": ["number", "null"], "description": "Lot size in acres, null if not stated"},
+                        "sq_ft": {"type": ["number", "null"], "description": "Building floor area in square feet, null if none or not stated"},
                         "price_usd": {"type": ["number", "null"], "description": "Asking price in US dollars, null if not stated"},
-                        "location": {"type": "string", "description": "City or road, as the listing gives it"},
+                        "price_text": {"type": ["string", "null"], "description": "The price as the listing shows it, e.g. 'Call for pricing'"},
+                        "location": {"type": "string", "description": "Address or road and city, as the listing gives it"},
+                        "zoning": {"type": ["string", "null"], "description": "Zoning as the listing states it, null if not stated"},
+                        "facilities": {"type": "array", "items": {"type": "string"},
+                                       "description": "Up to 5 short phrases on utilities and infrastructure the listing states: power, water, sewer, gas, rail, road access, buildings"},
+                        "highlights": {"type": "array", "items": {"type": "string"},
+                                       "description": "Up to 3 short phrases on other details worth knowing, from the listing"},
+                        "image_url": {"type": ["string", "null"], "description": "URL of the listing's main photo exactly as it appears in the fetched page, null if none"},
                         "fit": {"type": "string", "description": "One sentence: why it fits the needs, citing the listing"},
                         "check": {"type": "string", "description": "One sentence: the biggest thing still unverified"},
                         "still_listed": {"type": "boolean", "description": "True only if you opened the page and it shows the site as for sale"},
@@ -86,14 +99,14 @@ Needs, in order:
 4. {line[0].upper() + line[1:]}.
 5. Access to municipal water or a large well permit is a plus. This county's tightest limit is {need['binding']}.
 
-Search commercial and land listing sites (for example LoopNet, Crexi, LandWatch, Land.com, broker sites) and county economic development site lists. Open each candidate listing page with web fetch to confirm it is still for sale and to read its acreage and price. Use only URLs that appeared in your search results or that you fetched; never build or guess a URL. Leave acres or price null when the listing doesn't state them. Prefer fewer, real listings over 3 weak ones.
+Search commercial and land listing sites (for example LoopNet, Crexi, LandWatch, Land.com, CommercialCafe, broker sites) and county economic development site lists. Open each candidate listing page with web fetch to confirm it is still for sale and to read its acreage, building square feet, price, zoning, utilities and main photo. Use only URLs that appeared in your search results or that you fetched; never build or guess a URL. Leave a field null, or a list empty, when the listing doesn't state it. Prefer fewer, real listings over 3 weak ones.
 
 When done, call submit_sites once."""
 
 
-def _urls(blocks) -> tuple[set[str], set[str]]:
-    """URLs that search results returned, and URLs that were fetched."""
-    found, fetched = set(), set()
+def _urls(blocks) -> tuple[set[str], set[str], list[str]]:
+    """URLs that search results returned, URLs that were fetched, and the fetched pages' text."""
+    found, fetched, texts = set(), set(), []
     for b in blocks:
         t = getattr(b, "type", None)
         if t == "web_search_tool_result" and isinstance(getattr(b, "content", None), list):
@@ -103,12 +116,51 @@ def _urls(blocks) -> tuple[set[str], set[str]]:
             u = getattr(c, "url", None)
             if u and getattr(c, "type", "") == "web_fetch_result":
                 fetched.add(u)
-    return found - {""}, fetched
+                data = getattr(getattr(getattr(c, "content", None), "source", None), "data", None)
+                if isinstance(data, str):
+                    texts.append(data)
+    return found - {""}, fetched, texts
 
 
 def _norm(u: str) -> str:
     p = urlsplit(u.strip())
     return (p.netloc.lower().removeprefix("www.") + p.path.rstrip("/")).lower()
+
+
+def _base(host: str) -> str:
+    return ".".join(host.lower().split(".")[-2:])
+
+
+def _photo(img, page_url: str, texts: list[str]):
+    """Keep a photo URL only if it is https and either appears in a fetched page or is served by the listing site."""
+    if not isinstance(img, str) or not img.startswith("https://"):
+        return None
+    if any(img in t for t in texts) or _base(urlsplit(img).netloc) == _base(urlsplit(page_url).netloc):
+        return img
+    return None
+
+
+_snap = None
+
+
+def snapshot(geoid: str) -> dict | None:
+    """The dated listings snapshot for a county, if we have one."""
+    global _snap
+    if _snap is None:
+        try:
+            _snap = json.loads(SNAPSHOT.read_text())
+        except (OSError, ValueError):
+            _snap = {}
+    c = (_snap.get("counties") or {}).get(geoid)
+    return c and {"sites": c["sites"], "note": c.get("note", ""), "checked": _snap.get("checked")}
+
+
+def _fallback(geoid: str, reason: str, need: dict, links: list[dict], status: str = "unavailable") -> dict:
+    """When live search is off or fails: the dated snapshot if this county has one, else the reason and links."""
+    snap = snapshot(geoid)
+    if snap:
+        return {"status": "snapshot", "reason": reason, "need": need, "links": links} | snap
+    return {"status": status, "reason": reason, "need": need, "links": links}
 
 
 def find_sites(geoid: str, county: str, state: str, st: str, need: dict) -> dict:
@@ -122,16 +174,16 @@ def find_sites(geoid: str, county: str, state: str, st: str, need: dict) -> dict
     try:
         import anthropic
     except ImportError:
-        return {"status": "unavailable", "reason": "The anthropic package isn't installed.", "need": need, "links": links}
+        return _fallback(geoid, "The anthropic package isn't installed.", need, links)
     if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN") or os.environ.get("ANTHROPIC_PROFILE")):
-        return {"status": "unavailable", "reason": "No Anthropic API key is set on the server.", "need": need, "links": links}
+        return _fallback(geoid, "No Anthropic API key is set on the server.", need, links)
 
     client = anthropic.Anthropic()
     messages = [{"role": "user", "content": _prompt(county, state, st, need)}]
     tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": 6},
              {"type": "web_fetch_20260209", "name": "web_fetch", "max_uses": 6},
              SUBMIT_TOOL]
-    found, fetched, picks = set(), set(), None
+    found, fetched, texts, picks = set(), set(), [], None
     try:
         for _ in range(MAX_TURNS):
             resp = client.beta.messages.create(
@@ -139,11 +191,12 @@ def find_sites(geoid: str, county: str, state: str, st: str, need: dict) -> dict
                 output_config={"effort": "medium"},
                 betas=["server-side-fallback-2026-07-01"], fallbacks="default",
             )
-            f1, f2 = _urls(resp.content)
+            f1, f2, t = _urls(resp.content)
             found |= f1
             fetched |= f2
+            texts += t
             if resp.stop_reason == "refusal":
-                return {"status": "error", "reason": "The search was declined.", "need": need, "links": links}
+                return _fallback(geoid, "The search was declined.", need, links, "error")
             call = next((b for b in resp.content if b.type == "tool_use" and b.name == "submit_sites"), None)
             if call:
                 picks = call.input if isinstance(call.input, dict) else json.loads(call.input)
@@ -153,14 +206,14 @@ def find_sites(geoid: str, county: str, state: str, st: str, need: dict) -> dict
                 continue
             messages.append({"role": "user", "content": "Call submit_sites now with what you found."})
     except anthropic.APIConnectionError:
-        return {"status": "error", "reason": "Couldn't reach the search service.", "need": need, "links": links}
+        return _fallback(geoid, "Couldn't reach the search service.", need, links, "error")
     except anthropic.RateLimitError:
-        return {"status": "error", "reason": "Search is busy. Try again in a minute.", "need": need, "links": links}
+        return _fallback(geoid, "Search is busy. Try again in a minute.", need, links, "error")
     except anthropic.APIStatusError as e:
-        return {"status": "error", "reason": f"Search failed ({e.status_code}).", "need": need, "links": links}
+        return _fallback(geoid, f"Search failed ({e.status_code}).", need, links, "error")
 
     if picks is None:
-        return {"status": "error", "reason": "The search ended without results.", "need": need, "links": links}
+        return _fallback(geoid, "The search ended without results.", need, links, "error")
     seen = {_norm(u) for u in found | fetched}
     opened = {_norm(u) for u in fetched}
     sites = []
@@ -168,8 +221,11 @@ def find_sites(geoid: str, county: str, state: str, st: str, need: dict) -> dict
         n = _norm(s.get("url", ""))
         if not n or n not in seen:            # a URL no search returned is dropped, never shown
             continue
+        listed = bool(s.get("still_listed")) and n in opened
         sites.append(s | {"source": urlsplit(s["url"]).netloc.removeprefix("www."),
-                          "opened": n in opened, "still_listed": bool(s.get("still_listed")) and n in opened})
+                          "opened": n in opened, "still_listed": listed, "status": "for sale" if listed else "unclear",
+                          "facilities": list(s.get("facilities") or [])[:5], "highlights": list(s.get("highlights") or [])[:3],
+                          "image_url": _photo(s.get("image_url"), s["url"], texts)})
     out = {"status": "ok", "sites": sites, "note": picks.get("note", ""), "need": need, "links": links,
            "searched_at": datetime.now(timezone.utc).isoformat(timespec="minutes")}
     with _lock:
