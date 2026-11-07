@@ -87,6 +87,23 @@
   ol.top li::before { content: counter(t); color: var(--text-muted); font-size: 12px; }
   ol.top .s { color: var(--text-muted); font-size: 12px; }
 
+  .colh { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+  details.adjust { border-top: 1px solid var(--line); padding-top: 14px; }
+  details.adjust summary { cursor: pointer; list-style: none; font-size: 14px; font-weight: 600; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px; }
+  details.adjust summary::-webkit-details-marker { display: none; }
+  details.adjust summary::after { content: ""; width: 7px; height: 7px; border-right: 1.5px solid var(--text-muted); border-bottom: 1.5px solid var(--text-muted);
+    transform: rotate(-45deg); margin-left: auto; transition: transform .2s ease; }
+  details.adjust[open] summary::after { transform: rotate(45deg); }
+  .dot-ch { font-size: 11px; font-weight: 500; color: var(--accent); border: 1px solid #3987e566; border-radius: 999px; padding: 1px 7px; }
+  .sub-sec { margin-top: 18px; }
+  .sub-sec h3 { margin: 0 0 8px; font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; justify-content: space-between; align-items: baseline; }
+  .layers { display: grid; gap: 6px; justify-items: stretch; width: 340px; max-width: 100%; }
+  .seg.pill { background: #000a; border: 1px solid var(--line); backdrop-filter: blur(8px); border-radius: 10px; }
+  .seg.pill button { font-size: 12.5px; padding: 6px 0; }
+  .layers .legend { padding: 0 4px; }
+  .layers .legend .bar { height: 6px; border-radius: 3px; }
+  .layers .legend .ticks { font-size: 10.5px; margin-top: 2px; }
   main { position: relative; overflow: hidden; }
   #map { width: 100%; height: 100%; display: block; cursor: grab; }
   #map:active { cursor: grabbing; }
@@ -108,7 +125,7 @@
   .crumb a:hover { text-decoration: underline; }
   .states { fill: none; stroke: #0e0f10; stroke-width: 1; stroke-linejoin: round; }
   .gridline { fill: none; stroke: var(--grid); stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-  .topbar { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; pointer-events: none; }
+  .topbar { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; pointer-events: none; }
   .topbar > * { pointer-events: auto; }
   .crumb { background: #000a; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; color: var(--text-muted); backdrop-filter: blur(8px); }
   .crumb b { color: var(--text-primary); }
@@ -161,6 +178,10 @@
   .alert { display: flex; gap: 10px; background: #fab21914; border: 1px solid #fab21966; border-radius: 12px;
     padding: 11px 14px; margin: -6px 0 18px; font-size: 14px; line-height: 1.45; }
   .why { color: var(--text-muted); font-size: 12px; margin: 10px 2px 0; }
+  .tok { color: var(--text-muted); margin-top: 4px; font-size: 13px; }
+  .cost-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  details.more h5 { margin: 18px 0 8px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; }
+  details.more h5:first-of-type { margin-top: 6px; }
   .cost-big { font-size: 30px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
   .stack { display: flex; gap: 2px; height: 8px; margin: 14px 0 8px; }
   .stack i { display: block; flex: 1 1 0; min-width: 4px; border-radius: 4px; }
@@ -171,53 +192,32 @@
   .factor .s { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
   ul.next { margin: 0; padding-left: 18px; color: var(--text-primary); line-height: 1.55; }
   ul.next li + li { margin-top: 4px; }
-  /* sites for sale: one box per listing */
-  .lsts { display: grid; gap: 12px; margin-top: 10px; }
-  .lst { background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
-  .lst .media { position: relative; aspect-ratio: 5 / 2; max-width: 100%; background: #10161d; overflow: hidden; }
-  .lst .media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .lst .media svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .plat .grid { stroke: #ffffff0d; stroke-width: 1; }
-  .plat .need { fill: none; stroke: #9ec5f4aa; stroke-width: 1.5; stroke-dasharray: 5 4; }
-  .plat .lot { fill: #3987e540; stroke: var(--accent); stroke-width: 1.5; }
-  .plat .lot.full { fill: #0ca30c40; stroke: var(--good); }
-  .plat text { fill: var(--text-secondary); font-size: 12px; font-family: inherit; }
-  .plat text.big { fill: var(--text-primary); font-size: 15px; font-weight: 650; }
-  .lst .tags { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
-  .lst .tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #0e0f10cc; color: var(--text-primary);
-    backdrop-filter: blur(6px); display: inline-flex; align-items: center; gap: 5px; }
-  .lst .tag .d { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
-  .lst .tag.unclear .d { background: var(--warning); }
-  .lst .tag.r { margin-left: auto; font-weight: 500; color: var(--text-secondary); }
-  .lst .body { padding: 12px 14px 14px; display: grid; gap: 10px; }
-  .lst .t { font-size: 15px; font-weight: 650; letter-spacing: -.01em; line-height: 1.3; text-wrap: balance; }
-  .lst .loc { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
-  .lst .price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-  .lst .price b { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
-  .lst .price span { color: var(--text-muted); font-size: 12px; }
-  .lst .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; }
-  .lst .facts div { background: var(--surface-2); padding: 8px 10px; min-width: 0; }
-  .lst .facts small { display: block; color: var(--text-muted); font-size: 11px; margin-bottom: 2px; }
-  .lst .facts b { display: block; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
-  .lst .facts i { display: block; font-style: normal; color: var(--text-muted); font-size: 11px; margin-top: 1px; }
-  .lst .facts .na b { color: var(--text-muted); font-weight: 500; }
-  .lst .fitbar { height: 6px; background: #ffffff10; border-radius: 3px; overflow: hidden; margin-top: 5px; }
-  .lst .fitbar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
-  .lst .fitbar i.full { background: var(--good); }
-  .lst .fit { font-size: 12.5px; color: var(--text-secondary); }
-  .lst .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
-  .lst .chips li { font-size: 11.5px; color: var(--text-secondary); background: var(--surface-2); border: 1px solid var(--line);
-    border-radius: 6px; padding: 3px 7px; line-height: 1.35; }
-  .lst ul.hl { margin: 0; padding-left: 16px; color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; }
-  .lst .chk { font-size: 12px; color: var(--text-secondary); line-height: 1.45; background: #fab21910; border-left: 2px solid var(--warning);
-    padding: 6px 9px; border-radius: 0 6px 6px 0; }
-  .lst .chk b { color: var(--warning); font-weight: 600; }
-  .lst .by { color: var(--text-muted); font-size: 11.5px; line-height: 1.45; }
-  .lst a.go { display: flex; justify-content: center; gap: 6px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
-    border-radius: 9px; padding: 9px 12px; font-size: 13.5px; }
-  .lst a.go:hover { filter: brightness(1.1); }
-  .lst a.go span { opacity: .75; font-weight: 500; }
-  .sites-note { color: var(--text-secondary); font-size: 12.5px; line-height: 1.45; margin-top: 6px; }
+  /* sites for sale: one compact row per listing, the whole row links to the listing */
+  .lsts { display: grid; gap: 8px; margin-top: 12px; }
+  a.lst { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 12px 8px 8px;
+    background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; color: inherit; text-decoration: none;
+    transition: border-color .15s ease, background .15s ease; }
+  a.lst:hover { border-color: #3987e5aa; background: #1d1f22; }
+  .lst .th { position: relative; width: 76px; height: 76px; border-radius: 8px; overflow: hidden; background: #10161d; }
+  .lst .th img, .lst .th svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .plat .need { fill: none; stroke: #9ec5f4aa; stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .plat .lot { fill: #3987e555; stroke: var(--accent); stroke-width: 1.2; }
+  .plat .lot.full { fill: #0ca30c55; stroke: var(--good); }
+  .plat text { fill: var(--text-muted); font-size: 10px; font-family: inherit; }
+  .lst .tt { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+  .lst .t { font-size: 14px; font-weight: 600; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+  .lst .arr { color: var(--text-muted); font-size: 13px; }
+  a.lst:hover .arr { color: var(--accent); }
+  .lst .m { color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lst .m b { color: var(--text-primary); font-weight: 600; }
+  .lst .m .unc { color: var(--warning); }
+  .lst .fr { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 11.5px; color: var(--text-muted); }
+  .lst .fr .bar { flex: 1; height: 4px; background: #ffffff12; border-radius: 2px; overflow: hidden; max-width: 120px; }
+  .lst .fr .bar i { display: block; height: 100%; background: var(--accent); }
+  .lst .fr .bar i.full { background: var(--good); }
+  .lst .c { margin-top: 4px; font-size: 11.5px; color: var(--text-muted); line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sites-foot { color: var(--text-muted); font-size: 11.5px; margin-top: 10px; line-height: 1.5; }
   .searching { animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: .45; } }
   @media (prefers-reduced-motion: reduce) { .searching { animation: none; } }
@@ -233,6 +233,17 @@
   .lnk { display: inline-block; margin-top: 12px; color: var(--accent); text-decoration: none; font-size: 13px; }
   .err { color: var(--critical); }
   .crumb .err a, .crumb a.retry { color: var(--accent); }
+  @media (max-width: 760px) {
+    #app { grid-template-columns: 1fr; grid-template-rows: minmax(0, 58%) minmax(0, 42%); }
+    main { order: 1; }
+    aside { order: 2; border-right: 0; border-top: 1px solid var(--line); padding-top: 12px; }
+    #detail { position: fixed; inset: 0; width: 100%; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); z-index: 10; }
+    .topbar { flex-direction: column; gap: 8px; left: 10px; right: 10px; top: 10px; }
+    .layers { width: 100%; }
+    .zoombtns { left: 10px; bottom: 10px; }
+    .hero .big { font-size: 44px; }
+    .pick { flex-direction: column; border-radius: 22px; }
+  }
 </style>
 </head>
 <body>
@@ -261,55 +272,40 @@
     </div>
 
     <div class="sec">
-      <h3>Map</h3>
-      <div class="seg" id="layerSeg" style="--n:5">
-        <button data-k="score" aria-pressed="true">Overall</button>
-        <button data-k="power_score">Power</button>
-        <button data-k="water_score">Water</button>
-        <button data-k="land_score">Land</button>
-        <button data-k="cost_score">Cost</button>
-      </div>
-      <div class="legend" style="margin-top:12px">
-        <div class="bar" id="legendBar"></div>
-        <div class="ticks" id="legendTicks"><span>Low</span><span>High</span></div>
-      </div>
+      <h3>Campus size <button class="reset" id="resetMin" hidden>Reset</button></h3>
+      <div class="row"><input type="range" id="minMw" min="0" max="1000" step="25" value="0" aria-label="Campus size" /><span class="v num" id="minMwV">Any</span></div>
     </div>
 
     <div class="sec">
-      <h3>Priorities <button class="reset" id="resetW" hidden>Reset</button></h3>
-      <div class="row">Power<input type="range" id="wp" min="0" max="100" /><span class="v num" id="wpV"></span></div>
-      <div class="row">Water<input type="range" id="ww" min="0" max="100" /><span class="v num" id="wwV"></span></div>
-      <div class="row">Land<input type="range" id="wl" min="0" max="100" /><span class="v num" id="wlV"></span></div>
-    </div>
-
-    <div class="sec">
-      <h3>Minimum size <button class="reset" id="resetMin" hidden>Reset</button></h3>
-      <div class="row"><input type="range" id="minMw" min="0" max="1000" step="25" value="0" /><span class="v num" id="minMwV">Any</span></div>
-    </div>
-
-    <div class="sec">
-      <h3>Cooling <button class="reset" id="resetC" hidden>Reset</button></h3>
-      <div class="seg" id="coolSeg" style="--n:3"></div>
-    </div>
-
-    <div class="sec">
-      <h3>Power price <button class="reset" id="resetP" hidden>Reset</button></h3>
-      <div class="seg" id="powerSeg" style="--n:3"></div>
-    </div>
-
-    <div class="sec">
-      <h3>Grid lines</h3>
-      <div class="seg" id="kvSeg" style="--n:3">
-        <button data-kv="500" aria-pressed="true">500 kV</button>
-        <button data-kv="345" aria-pressed="true">345 kV</button>
-        <button data-kv="230" aria-pressed="false">230 kV</button>
-      </div>
-    </div>
-
-    <div class="sec">
-      <h3 id="topTitle">Top states</h3>
+      <h3><span id="topTitle">Best opportunities</span><span class="colh">Capacity · Score</span></h3>
       <ol class="top" id="topList" aria-live="polite"></ol>
     </div>
+
+    <details class="sec adjust" id="adjust">
+      <summary><span>Adjust</span><span class="dot-ch" id="adjDot" hidden title="Some inputs differ from the defaults">Changed</span></summary>
+      <div class="sub-sec">
+        <h3>Priorities <button class="reset" id="resetW" hidden>Reset</button></h3>
+        <div class="row">Power<input type="range" id="wp" min="0" max="100" /><span class="v num" id="wpV"></span></div>
+        <div class="row">Water<input type="range" id="ww" min="0" max="100" /><span class="v num" id="wwV"></span></div>
+        <div class="row">Land<input type="range" id="wl" min="0" max="100" /><span class="v num" id="wlV"></span></div>
+      </div>
+      <div class="sub-sec">
+        <h3>Cooling <button class="reset" id="resetC" hidden>Reset</button></h3>
+        <div class="seg" id="coolSeg" style="--n:3"></div>
+      </div>
+      <div class="sub-sec">
+        <h3>Power price <button class="reset" id="resetP" hidden>Reset</button></h3>
+        <div class="seg" id="powerSeg" style="--n:3"></div>
+      </div>
+      <div class="sub-sec">
+        <h3>Grid lines on the map</h3>
+        <div class="seg" id="kvSeg" style="--n:3">
+          <button data-kv="500" aria-pressed="true">500 kV</button>
+          <button data-kv="345" aria-pressed="true">345 kV</button>
+          <button data-kv="230" aria-pressed="false">230 kV</button>
+        </div>
+      </div>
+    </details>
   </aside>
 
   <main>
@@ -317,6 +313,16 @@
     <div class="loading" id="loading">Loading…</div>
     <div class="topbar">
       <div class="crumb" id="crumb"></div>
+      <div class="layers">
+        <div class="seg pill" id="layerSeg" style="--n:5" aria-label="Color the map by">
+          <button data-k="score" aria-pressed="true">Overall</button>
+          <button data-k="power_score">Power</button>
+          <button data-k="water_score">Water</button>
+          <button data-k="land_score">Land</button>
+          <button data-k="cost_score">Cost</button>
+        </div>
+        <div class="legend"><div class="bar" id="legendBar"></div><div class="ticks" id="legendTicks"><span>Low</span><span>High</span></div></div>
+      </div>
     </div>
     <div class="zoombtns"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset view">⟲</button></div>
     <div id="tip"></div>
@@ -719,8 +725,7 @@ async function openCounty(g, fly = false) {
   const factor = (k, label, mw, score, tag) => `
     <div class="factor ${r.binding === k ? "bind" : ""}">
       <div class="k">${label}${r.binding === k ? "<b>Limit</b>" : tag || ""}</div><div class="m num">${fmtMW(mw)}</div>
-      <div class="meter" role="img" aria-label="${label} score ${score.toFixed(0)} of 100"><i style="width:${score}%"></i></div>
-      <div class="s num">Score ${score.toFixed(0)}</div>
+      <div class="meter" role="img" aria-label="${label} score ${score.toFixed(0)} of 100" title="Score ${score.toFixed(0)} of 100"><i style="width:${score}%"></i></div>
     </div>`;
   const next = [];
   if (r.binding === "power" || !r.max_kv) next.push(`Interconnection queue and upgrade cost with ${r.ba || "the grid operator"}`);
@@ -736,17 +741,19 @@ async function openCounty(g, fly = false) {
   const partTot = d3.sum(parts, p => p[2]) || 1;
   const pctTxt = v => { const x = v / partTot * 100; return x > 0 && x < 1 ? "<1%" : Math.round(x) + "%"; };
   const kvName = { "500": "500 kV", "345": "345 kV", "230": "230 kV", "0": "no 230 kV+ line" }[r.kv_tier];
-  const costCard = r.total_cost_year == null || !r.supportable_mw ? `
+  const priced = r.total_cost_year != null && r.supportable_mw;
+  const costCard = !priced ? `
     <div class="card">
       <h4>Cost per year</h4>
       <div class="sub">${!r.supportable_mw ? "No campus fits here, so there is nothing to price." : "No data. The electricity rate for this state is missing."}</div>
     </div>` : `
     <div class="card">
       <h4>Cost per year<span class="est">Est.</span></h4>
-      <div class="cost-big">${fmtMoney(r.total_cost_year)}</div>
-      <div class="rng num">$${r.cost_mwh.toFixed(0)} per MWh · ${r.power_source_label}</div>
+      <div class="cost-row"><span class="cost-big num">${fmtMoney(r.total_cost_year)}</span><span class="rng num">$${r.cost_mwh.toFixed(0)} per MWh · ${r.power_source_label}</span></div>
       <div class="stack" role="img" aria-label="${parts.map(p => `${p[1]} ${pctTxt(p[2])}`).join(", ")}">${parts.filter(p => p[2] > 0).map(p => `<i class="c-${p[0]}" style="flex-grow:${p[2]}" title="${p[1]} ${fmtMoney(p[2])} (${pctTxt(p[2])})"></i>`).join("")}</div>
       <div class="stack-key">${parts.map(p => `<span><i class="dot c-${p[0]}"></i>${p[1]} ${pctTxt(p[2])}</span>`).join("")}</div>
+    </div>`;
+  const costTable = !priced ? "" : `
       <table class="kv">
         <tr><td>Energy<div class="rng">${isPPA
           ? `${r.power_source_label} $${r.ppa_usd_mwh}/MWh + ${r.ppa_delivery_c}¢/kWh delivery (approx.)`
@@ -757,21 +764,21 @@ async function openCounty(g, fly = false) {
         <tr><td>Water and sewer<div class="rng">$${r.water_rate.toFixed(2)} / 1,000 gal · ${r.water_rate_local
           ? r.water_price_source : `$${r.water_price.toFixed(2)} default × ${r.water_mult.toFixed(2)} for stress`} · sewer on ${Math.round(r.sewer_share * 100)}%</div></td><td class="num">${fmtMoney(r.water_cost_year + r.sewer_cost_year)}</td></tr>
         <tr><td>Land<div class="rng">${Math.round(r.capital_charge * 100)}% a year of ${fmtMoney(r.land_cost)} · ${fmt(r.land_acres)} acres × $${fmt(r.land_usd_acre)} × ${r.land_premium} (${kvName})${r.land_price_est ? " · US average" : ""}</div></td><td class="num">${fmtMoney(r.land_cost_year)}</td></tr>
-      </table>
-    </div>`;
+      </table>`;
   const blk = blockers(r);
   const mix = (r.planned_mix || []).map(([tech, mw]) => `${tech} ${fmt(mw)} MW`).join("<br>") || "None reported";
   const county = `${r.NAME}${/County|Parish|Borough|city/i.test(r.NAME) ? "" : " County"}`;
   const src = CFG.sources || {};
   $("#detail").innerHTML = `
     <button class="close" aria-label="Close" onclick="closeDetail()">✕</button>
-    <div class="sub num">${r.STATE_NAME} · #${fmt(r.rank)} of ${fmt(r.of)}</div>
+    <div class="sub num">${r.STATE_NAME} · #${fmt(r.rank)} of ${fmt(r.of)} · Score ${r.score.toFixed(0)}</div>
     <h2>${county}</h2>
 
     <div class="hero">
-      <div class="sub">Estimated capacity</div>
+      <div class="sub">Room for</div>
       <div class="big num">${fmtMW(r.supportable_mw)}</div>
       <div class="line">${cap(r.binding)}-limited · Power in ${r.months_lo}–${r.months_hi} months<span class="est">Est.</span></div>
+      ${r.supportable_mw ? `<div class="tok num" title="${t.medium.label}, typical">About ${fmtTok(t.medium.typical)} tokens a day<span class="est">Est.</span></div>` : ""}
     </div>
     ${blk.map(b => `<div class="alert" role="alert"><span class="warn" aria-hidden="true">⚠</span><span>${b}</span></div>`).join("")}
 
@@ -780,7 +787,6 @@ async function openCounty(g, fly = false) {
       ${factor("water", "Water", r.water_mw, r.water_score, waterEst ? `<span class="est">${r.ps_mgd ? "Est." : "No data"}</span>` : "")}
       ${factor("land", "Land", r.land_mw, r.land_score, `<span class="est">Est.</span>`)}
     </div>
-    <div class="why num">Overall score ${r.score.toFixed(0)}, weighted power ${share("power")}% · water ${share("water")}% · land ${share("land")}%</div>
 
     <div class="card" id="sitesCard"><h4>For sale now</h4><div class="sub searching">Finding sites for sale…</div></div>
 
@@ -791,18 +797,14 @@ async function openCounty(g, fly = false) {
       <ul class="next">${next.slice(0, 3).map(n => `<li>${n}</li>`).join("")}</ul>
     </div>
 
-    <div class="card">
-      <h4>Tokens per day<span class="est">Est.</span></h4>
+    <details class="card more">
+      <summary>Details</summary>
+      ${priced ? `<h5>Cost breakdown</h5>${costTable}` : ""}
+      <h5>Tokens per day<span class="est">Est.</span></h5>
       <table class="kv">${["small", "medium", "large"].map(k => `<tr><td title="${t[k].examples}">${t[k].label.replace(" model", "")}</td><td class="num">${fmtTok(t[k].typical)}<div class="rng">${fmtTok(t[k].high)} – ${fmtTok(t[k].low)}</div></td></tr>`).join("")}</table>
-    </div>
-
-    <div class="card">
-      <h4>Water limit by cooling</h4>
+      <h5>Water limit by cooling</h5>
       <div class="bars">${Object.entries(r.all_cooling).map(([c, mw]) => `<div class="b ${c === r.cooling ? "cur" : ""}"><span>${coolName(c)}${c === r.cooling ? " ✓" : ""}</span><div class="track"><div class="fill" style="width:${Math.max(2, mw / maxCool * 100)}%"></div></div><span class="num">${fmtMW(mw)}</span></div>`).join("")}</div>
-    </div>
-
-    <details class="card">
-      <summary>Data</summary>
+      <h5>Data</h5>
       <table class="kv">
         <tr><td>Grid operator</td><td>${r.ba || (r.ba_fill ? r.ba_fill + " (est. from nearest county)" : "Unknown")}</td></tr>
         <tr><td>Highest line</td><td class="num">${r.max_kv ? r.max_kv + " kV" : "Under 230 kV"}</td></tr>
@@ -816,10 +818,7 @@ async function openCounty(g, fly = false) {
         <tr><td>Open land</td><td class="num">${fmt(r.open_acres)} acres (est.)</td></tr>
         <tr><td>Population</td><td class="num">${fmt(r.pop)}</td></tr>
       </table>
-    </details>
-
-    <details class="card">
-      <summary>Inputs and method</summary>
+      <h5>Inputs and method</h5>
       <dl class="method">
         <dt>Your inputs</dt><dd>Priorities ${state.w.power} / ${state.w.water} / ${state.w.land} · ${coolName(r.cooling)} cooling, ${CFG.cooling[r.cooling].l_per_kwh} L/kWh · ${r.power_source_label} power</dd>
         <dt>Capacity</dt><dd>The smallest of power, water and land, at ${Math.round(r.utilization * 100)}% average load.</dd>
@@ -829,7 +828,7 @@ async function openCounty(g, fly = false) {
         <dt>Water and sewer</dt><dd>$${CFG.water_price_default.toFixed(2)} per 1,000 gal default, × ${CFG.pricing.water_stress_multiplier.join(" to ")} by water stress. Sewer on ${Math.round(CFG.pricing.sewer_share_of_water * 100)}% of the water. Verified local rates are used as they are.</dd>
         <dt>Land</dt><dd>${CFG.acres_per_mw} acre per MW × state farmland value (USDA 2026) × a premium near big lines: ${["500", "345", "230", "0"].map(k => `×${CFG.pricing.land_premium_by_kv[k]} at ${k === "0" ? "none" : k + " kV"}`).join(", ")}. Carried at ${Math.round(CFG.pricing.capital_charge * 100)}% a year.</dd>
       </dl>
-      <h4 style="margin-top:14px">Sources</h4>
+      <h5>Sources</h5>
       <ul class="src">${Object.entries(src).map(([k, v]) => {
         const url = (v.match(/https?:\/\/\S+$/) || [])[0], text = url ? v.slice(0, v.length - url.length).replace(/[,\s]+$/, "") : v;
         return `<li><b>${SRC_NAME[k] || cap(k)}</b> ${text}${url ? ` <a class="lnk-i" href="${url}" target="_blank" rel="noopener" aria-label="Open source">↗</a>` : ""}</li>`;
@@ -852,79 +851,55 @@ async function loadSites(g, seq) {
   catch (e) { d = { status: "error", reason: "Couldn’t reach the server." }; }
   const el = box(); if (!el) return;
   const need = d.need || null;
-  const needTxt = need ? `${fmt(need.acres)}+ acres${need.kv ? ` near a ${need.kv} kV line` : ""}, for ${fmtMW(need.mw)}` : "";
-  const links = (d.links || []).map(l => `<a class="lnk-i" href="${safeUrl(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join(" · ");
-  const when = d.status === "snapshot" && d.checked ? new Date(d.checked + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
-    : d.searched_at ? new Date(d.searched_at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
-  const tag = d.status === "snapshot" ? `Checked ${when.replace(/,? \d{4}$/, "")}` : "Live search";
-  const head = `<h4>For sale now<span class="est">${tag}</span></h4>${needTxt ? `<div class="sub">Looking for ${needTxt}</div>` : ""}`;
+  const links = (d.links || []).map(l => `<a class="lnk-i" href="${safeUrl(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(" · ");
+  const day = d.status === "snapshot" && d.checked ? new Date(d.checked + "T12:00:00") : d.searched_at ? new Date(d.searched_at) : null;
+  const when = day ? day.toLocaleDateString([], { month: "short", day: "numeric" }) : "";
+  const head = `<h4>For sale now<span class="est">${d.status === "ok" ? "Live" : when ? "Checked " + when : "Search"}</span></h4>`;
+  const needTxt = need ? `Needs ${fmt(need.acres)} acres${need.kv ? ` near a ${need.kv} kV line` : ""}` : "";
   if (d.status !== "ok" && d.status !== "snapshot") {
-    el.innerHTML = `${head}<p class="rng" style="margin:8px 0">${esc(d.reason || "Live search is off.")} Search these yourself:</p><div>${links}</div>`;
+    el.innerHTML = `${head}<div class="sub">${needTxt}</div>
+      <p class="rng" style="margin:8px 0 6px">${esc(d.reason || "Live search is off.")}</p><div class="sites-foot">Search ${links}</div>`;
     return;
   }
   const sites = d.sites || [];
   const allSmall = need && sites.length && sites.every(x => x.acres != null && x.acres < need.acres);
-  const notes = [d.note, allSmall ? `None is big enough for the full ${fmtMW(need.mw)} campus. These are the largest found.` : ""].filter(Boolean);
-  el.innerHTML = `${head}
-    ${notes.length ? `<div class="sites-note">${notes.map(esc).join(" ")}</div>` : ""}
-    ${sites.length ? `<div class="lsts">${sites.map(x => siteBox(x, need)).join("")}</div>` : `<p class="rng" style="margin:8px 0">No listing found that fits.</p>`}
-    <div class="rng" style="margin-top:12px">${d.status === "snapshot" ? `Read from the listing pages on ${when}.` : `Found by web search ${when}.`} Listings change fast. Confirm with the broker.</div>
-    <div style="margin-top:6px">More: ${links}</div>`;
+  el.innerHTML = `${head}<div class="sub">${needTxt}${allSmall ? ". None for sale is that big, so these are the largest." : ""}</div>
+    ${sites.length ? `<div class="lsts">${sites.map(x => siteRow(x, need)).join("")}</div>` : `<p class="rng" style="margin:8px 0">No listing found that fits. ${esc(d.note)}</p>`}
+    <div class="sites-foot">${d.status === "snapshot" ? `Listings as of ${day.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}` : `Searched ${when}`}. Confirm with the broker. More on ${links}</div>`;
 }
-const SQFT_PER_ACRE = 43560;
-const fmtSqft = v => v >= 1e6 ? (v / 1e6).toFixed(1) + "M sq ft" : fmt(v) + " sq ft";
 const fmtAc = v => (v >= 100 ? fmt(v) : d3.format(",.1~f")(v)) + " ac";
-// survey-plat sketch: the lot drawn to scale against the acres this campus needs (shown when there is no photo)
+const shortPrice = x => x.price_usd != null ? fmtMoney(x.price_usd)
+  : x.price_text && !/not (shown|listed)|subject|call|request/i.test(x.price_text) ? x.price_text.replace(/\s*\(.*$/, "") : "Price on request";
+// to-scale thumbnail when there is no photo: the lot (solid) against the land the campus needs (dashed)
 function plat(x, need) {
-  const W = 400, H = 160, pad = 16, side = H - 2 * pad;
-  const grid = d3.range(0, W, 20).map(v => `<line class="grid" x1="${v}" y1="0" x2="${v}" y2="${H}"/>`).join("") + d3.range(0, H, 20).map(v => `<line class="grid" x1="0" y1="${v}" x2="${W}" y2="${v}"/>`).join("");
-  if (x.acres == null || !need) return `<svg class="plat" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${grid}<text class="big" x="${W / 2}" y="${H / 2}" text-anchor="middle">Lot size not listed</text></svg>`;
-  const big = Math.max(x.acres, need.acres), s = a => side * Math.sqrt(a / big);
-  const ls = Math.max(3, s(x.acres)), ns = s(need.acres), x0 = pad + 6, y1 = H - pad;
-  const full = x.acres >= need.acres;
-  return `<svg class="plat" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${grid}
-    <rect class="need" x="${x0}" y="${y1 - ns}" width="${ns}" height="${ns}" rx="2"/>
-    <rect class="lot ${full ? "full" : ""}" x="${x0}" y="${y1 - ls}" width="${ls}" height="${ls}" rx="2"/>
-    <text class="big" x="${x0 + side + 18}" y="${H / 2 - 6}">${fmtAc(x.acres)} lot</text>
-    <text x="${x0 + side + 18}" y="${H / 2 + 14}">Dashed: ${fmtAc(need.acres)} campus</text>
-    <text x="${x0 + side + 18}" y="${H / 2 + 32}">Drawn to scale</text></svg>`;
+  const S = 76, pad = 10, side = S - 2 * pad;
+  if (x.acres == null || !need) return `<svg class="plat" viewBox="0 0 ${S} ${S}" aria-hidden="true"><text x="${S / 2}" y="${S / 2 + 3}" text-anchor="middle">No size</text></svg>`;
+  const big = Math.max(x.acres, need.acres), sz = a => Math.max(3, side * Math.sqrt(a / big));
+  const ls = sz(x.acres), ns = sz(need.acres), y1 = S - pad;
+  return `<svg class="plat" viewBox="0 0 ${S} ${S}" aria-hidden="true">
+    <rect class="need" x="${pad}" y="${y1 - ns}" width="${ns}" height="${ns}" rx="1.5"/>
+    <rect class="lot ${x.acres >= need.acres ? "full" : ""}" x="${pad}" y="${y1 - ls}" width="${ls}" height="${ls}" rx="1.5"/></svg>`;
 }
-function siteBox(x, need) {
-  const open = x.status === "for sale";
-  const perAcre = x.price_usd != null && x.acres ? `${fmtMoney(x.price_usd / x.acres)} per acre` : "";
-  const price = x.price_usd != null ? fmtMoney(x.price_usd) : (x.price_text || "Price not listed");
-  const fact = (label, val, sub) => val == null ? `<div class="na"><small>${label}</small><b>Not listed</b></div>` : `<div><small>${label}</small><b>${val}</b>${sub ? `<i>${sub}</i>` : ""}</div>`;
-  const bldg = x.sq_ft != null ? fmtSqft(x.sq_ft) : x.kind === "land" ? "None listed" : null;
+function siteRow(x, need) {
+  const size = [x.acres != null ? fmtAc(x.acres) : "Size not listed", x.sq_ft != null ? `${fmt(x.sq_ft)} sq ft building` : ""].filter(Boolean).join(" · ");
   let fit = "";
   if (need && x.acres != null) {
-    const mw = x.acres / CFG.acres_per_mw, pct = Math.min(1, x.acres / need.acres), full = x.acres >= need.acres;
-    fit = `<div><div class="fit">${full ? `Big enough for the full ${fmtMW(need.mw)} campus` : `Room for about ${fmtMW(mw)} of the ${fmtMW(need.mw)} campus`}</div>
-      <div class="fitbar" role="img" aria-label="${Math.round(pct * 100)}% of the land needed"><i class="${full ? "full" : ""}" style="width:${Math.max(2, pct * 100)}%"></i></div></div>`;
-  } else if (need) fit = `<div class="fit">Lot size not listed, so the fit is unknown.</div>`;
+    const full = x.acres >= need.acres, pct = Math.min(1, x.acres / need.acres);
+    fit = `<div class="fr"><span class="bar" role="img" aria-label="${Math.round(pct * 100)}% of the land needed"><i class="${full ? "full" : ""}" style="width:${Math.max(3, pct * 100)}%"></i></span>
+      <span class="num">${full ? `Fits ${fmtMW(need.mw)}` : `Fits ${fmtMW(x.acres / CFG.acres_per_mw)} of ${fmtMW(need.mw)}`}</span></div>`;
+  }
   const img = x.image_url && /^https:\/\//i.test(x.image_url)
-    ? `<img src="${esc(x.image_url)}" alt="Listing photo: ${esc(x.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
-  return `<article class="lst">
-    <div class="media">${plat(x, need)}${img}
-      <div class="tags"><span class="tag ${open ? "" : "unclear"}"><span class="d"></span>${open ? "For sale" : "Status unclear"}</span>
-        <span class="tag r">${x.kind === "building" ? "Building" : "Land"}${x.photo_on_listing ? " · Photos on listing" : ""}</span></div>
-    </div>
-    <div class="body">
-      <div><div class="t">${esc(x.name)}</div><div class="loc">${esc(x.location)} · ${esc(x.source)}</div></div>
-      <div class="price num"><b>${esc(price)}</b>${perAcre ? `<span>${perAcre}</span>` : ""}</div>
-      <div class="facts num">
-        ${fact("Land", x.acres != null ? fmtAc(x.acres) : null, x.acres != null ? fmtSqft(x.acres * SQFT_PER_ACRE) : "")}
-        ${fact("Building", bldg, "")}
-        ${fact("Zoning", x.zoning ? esc(x.zoning) : null, "")}
-      </div>
+    ? `<img src="${esc(x.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
+  const label = `${x.name}, ${shortPrice(x)}, ${size}. Opens the listing on ${x.source}.`;
+  return `<a class="lst" href="${safeUrl(x.url)}" target="_blank" rel="noopener" aria-label="${esc(label)}">
+    <div class="th">${plat(x, need)}${img}</div>
+    <div style="min-width:0">
+      <div class="tt"><span class="t">${esc(x.name)}</span><span class="arr" aria-hidden="true">↗</span></div>
+      <div class="m num"><b>${esc(shortPrice(x))}</b> · ${esc(size)}${x.status === "for sale" ? "" : ` · <span class="unc">Status unclear</span>`}</div>
       ${fit}
-      ${(x.facilities || []).length ? `<ul class="chips" aria-label="Facilities">${x.facilities.map(f => `<li>${esc(f)}</li>`).join("")}</ul>` : ""}
-      ${(x.highlights || []).length ? `<ul class="hl">${x.highlights.map(h => `<li>${esc(h)}</li>`).join("")}</ul>` : ""}
-      ${x.fit && !x.highlights?.length ? `<div class="fit">${esc(x.fit)}</div>` : ""}
-      ${x.check ? `<div class="chk"><b>Check</b> ${esc(x.check)}</div>` : ""}
-      ${x.broker || x.updated ? `<div class="by">${[x.broker && esc(x.broker), x.updated && esc(/^[A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(x.updated) ? "Updated " + x.updated : x.updated)].filter(Boolean).join(" · ")}</div>` : ""}
-      <a class="go" href="${safeUrl(x.url)}" target="_blank" rel="noopener">View listing ↗ <span>${esc(x.source)}</span></a>
+      ${x.check ? `<div class="c">${esc(x.check)}</div>` : ""}
     </div>
-  </article>`;
+  </a>`;
 }
 function closeDetail() { $("#detail").classList.remove("open"); state.sel = null; detailSeq++; paint(); pinG.selectAll("g").classed("on", false); }
 function goUp() {  // Esc: close the panel first, then step back up a level
@@ -970,6 +945,7 @@ function markOverrides() {
   $("#resetMin").hidden = state.minMw === 0;
   $("#resetC").hidden = state.cooling === CFG.default_cooling;
   $("#resetP").hidden = state.power === CFG.default_power;
+  $("#adjDot").hidden = !(wChanged || state.cooling !== CFG.default_cooling || state.power !== CFG.default_power);
   document.querySelectorAll("#powerSeg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.p === state.power));
   document.querySelectorAll("#coolSeg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.c === state.cooling));
   document.querySelectorAll("#layerSeg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.k === state.layer));

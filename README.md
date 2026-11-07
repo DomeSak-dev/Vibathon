@@ -5,7 +5,7 @@ Data center siting for Theme 3 of the Vibathon. Pick a region on a spinning glob
 - months to power;
 - yearly cost: energy, capacity, water and sewer, and land (grid rate or a solar or wind PPA);
 - how many AI tokens a day the campus could serve;
-- up to three sites for sale that fit the campus, each in its own box: price, acres and square feet, zoning, utilities, notable details, the photo when the listing has one, and a link to the listing.
+- up to three sites for sale that fit the campus, each a compact card with the listing photo, price, size, how much of the campus it fits and the main thing to check. Tap it to open the listing.
 
 Ideas and next steps: [suggestion.md](suggestion.md). Every assumption: [ASSUMPTIONS.md](ASSUMPTIONS.md).
 
