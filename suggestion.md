@@ -28,7 +28,9 @@ Other users worth one slide, because the same data serves them:
 **Suggestions:**
 - **Add the LBNL "Queued Up" interconnection queue.** It's the single best "time to power" signal, because it shows how many GW are already waiting at each grid operator and the median wait. The site blocked our script (403), so download it by hand and we'll join it by county/ISO. This would turn "months to power" from a rule of thumb into data. **Highest-value next step.**
 - **Add substations.** A line passing through isn't enough; you connect at a substation. HIFLD substations are no longer public, but OpenStreetMap has them (`power=substation`).
-- **Add hourly grid stress** (EIA Hourly Grid Monitor): grid operators with thin reserve margins at peak are worse bets.
+- ~~Add hourly grid stress~~ **Built.** Each grid operator's spare capacity at its peak hour (EIA-930 hourly demand, Jul 2025–Jun 2026, against EIA-860M capacity) now scales power MW and makes up 20% of the power score. For example, Arizona Public Service has ~1% spare, so Maricopa's power is cut by a third; PJM has ~26%. How loaded each individual line is isn't public: FERC classes it as critical energy infrastructure information (CEII).
+- **Built:** only lines that run ≥ 5 km inside a county count (corner clips no longer give 1 GW credit), and extra lines add capacity with diminishing returns.
+- **Next on grid usage:** grid-operator congestion prices (the locational price at each grid node, from PJM, MISO and ERCOT) show where lines are actually full. They're public but differ by operator; a good stretch goal.
 - **Rename it "power headroom (indicative)"** everywhere in the pitch. We know where the big lines are, but not how much of their capacity is already sold. Saying this up front scores on *Feasibility and risks*.
 
 ### 💧 Water
@@ -100,10 +102,52 @@ Water is about 1% of running cost next to electricity (e.g. Coconino at about 1 
 4. **Export a one-page site memo as a PDF** (reuse `report.py` from the AI Energy Bill project).
 5. **Animate the interconnection queue over time** once we have LBNL data.
 
+## 4b. Your company: AI emissions for SB 253 (built)
+We tested build vs. rent vs. API and found that almost every company should stay on a cloud API. Building pays off only at thousands of times a typical company's volume. So this tab now helps those companies **report** their AI use:
+- **Inputs:** usage (CSV or a sample), and where the AI runs: the US average by default, a common cloud region, or any county clicked on the map. The map colors counties by grid carbon.
+- **Output:**
+  - yearly CO₂e, in kg or tonnes, tagged Scope 3 · Category 1;
+  - the same usage in six cloud regions (e.g. Oregon cuts it ~93% vs. the US average);
+  - a worksheet CSV;
+  - a Claude-drafted methodology note.
+
+**Pitch line:** "Your AI's emissions for SB 253 in one minute, and the region that cuts them most."
+
+## 4c. Impact layer (built)
+"Where is the greenest place to build?" is now a map layer (Impact), next to Overall, Power, Water, Land and Cost. It serves the "town weighing what a data center does to its power bills and water" user from the theme brief, and ESG-minded buyers.
+- **Score:** grid CO₂ (50%), water stress (30%) and clean power being built nearby (20%).
+- **Colors:** red for heavier footprint, green for lighter.
+- **County panel:** a carbon card shows the campus's yearly CO₂ against the US grid and the grid mix.
+
+**Pitch tension worth showing live:** the cleanest grids (hydro in the Pacific Northwest) often sit where water is already stressed. Grant County, WA has a grid 93% cleaner than the US average but water stress of 97/100, so cooling design matters there.
+
+**Ideas:**
+- Hourly carbon: EIA-930 has hourly mixes, so we could show how much cleaner a campus gets by shifting batch AI work to sunny or windy hours.
+- Market-based figures: let the company enter its provider's renewable claims next to the location-based number.
+
+## 4d. Merged with the team branch (claude/project-thread-movrcl)
+The team's branch and this work are combined on `claude/integrate-movrcl`:
+- **From the team branch:**
+  - the name and globe with the team pinned;
+  - best opportunities with map pins;
+  - the cost model: PPA power, capacity markets, water stress pricing, land;
+  - sites for sale;
+  - the product standard: warnings, shareable links;
+  - the calmer layout.
+- **From this work:**
+  - the power model: usable lines, grid spare capacity;
+  - Your company: AI emissions for SB 253;
+  - the model sheet catalog;
+  - the Impact layer.
+- **Joined up:**
+  - Gap-filling of the grid operator follows the team's nearest-county rule.
+- **Lease listings:** a Buy/Lease switch on the sites card, using the same live search. Public lease listings are mostly small parcels with no posted rate, so they rarely fit a large campus. The app says so rather than hiding it.
+- **Not merged:** `claude/project-thread-enmas8` sets default weights to power 60 / water 20 / land 20. The team branch says it was built to merge cleanly with it. ⚑ Decide whether to adopt it.
+
 ## 5. Token estimate: how it works
 `tokens/day = MW × 70% average load × 24 h ÷ (Wh per 1,000 output tokens)`
 
-The Wh-per-token factors come from the AI Energy Bill project (`data/energy_factors.json`: small 0.3, medium 1.5, large 4.5 Wh per 1,000 output tokens, with low/high ranges). A 1 GW campus serves about 11 trillion medium-model output tokens a day. That's a nice headline number for the pitch, and the ranges stop it being over-precise.
+The Wh-per-token factors now come from the team model sheet (`data/energy_factors.json`: small 0.19, medium 1.89, large 5.00 Wh per 1,000 output tokens, with low/high ranges). A 1 GW campus serves about 9 trillion medium-model output tokens a day. That's a nice headline number for the pitch, and the ranges stop it being over-precise.
 
 ## 6. Risks to say out loud (Feasibility, 10%)
 - **Power MW is a screening estimate, not an interconnection study.** We don't know how much of each line's capacity is already sold.

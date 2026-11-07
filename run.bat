@@ -7,8 +7,12 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+REM Optional: put ANTHROPIC_API_KEY=... in a .env file next to this script for the Claude-drafted disclosure note and live sites to buy or lease
+if exist .env (
+  for /f "usebackq eol=# tokens=1,* delims==" %%A in (".env") do set "%%A=%%B"
+)
 echo Checking packages...
-python -m pip install -q fastapi "uvicorn[standard]" pandas numpy
+python -m pip install -q fastapi "uvicorn[standard]" pandas numpy python-multipart anthropic
 start "" http://localhost:8001
 python -m uvicorn app.main:app --port 8001
 pause

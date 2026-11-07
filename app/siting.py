@@ -1,13 +1,15 @@
-"""Siting model: county metrics -> power / water / land capacity (MW), scores, cost and tokens.
+"""Siting model: county metrics -> power / water / land capacity (MW), scores, cost, footprint and tokens.
 
 Supportable MW = min(power MW, water MW, land MW)        -> the binding factor is named
-Power MW  = MW by highest line voltage x (1 + planned-generation bonus - retirement penalty)
+Power MW  = lines reaching >= 5 km into the county (strongest in full, each extra at half the last)
+            x (1 + planned-generation bonus - retirement penalty) x grid-operator spare-capacity factor
 Water MW  = 10% of public-supply withdrawals / water per MW (cooling design x local heat)
-Land MW   = open acres x 0.2% / 1 acre per MW
+Land MW   = open acres x 0.5% / 1 acre per MW
 Tokens/day = MW x utilization x 24 h / (Wh per 1,000 output tokens) x 1,000
 Cost/year  = energy (state rate, or PPA + delivery) + capacity-market price (PJM, MISO, ISO-NE, NYISO)
              + water and sewer (default rate x stress)
              + capital charge x land (acres x state farmland $/acre x line-voltage premium)
+Impact     = environmental score: grid CO2 (EIA-930 mix), water stress, clean power planned nearby
 All assumptions: ASSUMPTIONS.md. All numbers: data/siting_factors.json.
 """
 from __future__ import annotations
@@ -42,23 +44,40 @@ def pct(s: pd.Series) -> pd.Series:
 @lru_cache(maxsize=8)
 def table(cooling: str = F["water"]["default_cooling"]) -> pd.DataFrame:
     d = pd.read_json(DATA / "counties.json", dtype={"GEOID": str})
-    num = ["km_230", "km_345", "km_500", "max_kv", "n_lines", "gen_mw", "gen_firm_mw", "retire_mw",
-           "planned_mw", "planned_n"]
+    num = ["km_230", "km_345", "km_500", "max_kv", "n_lines", "n_500", "n_345", "n_230", "gen_mw", "gen_firm_mw",
+           "retire_mw", "planned_mw", "planned_n"]
     d[num] = d[num].fillna(0)
     P, W, L = F["power"], F["water"], F["land"]
     util = F["facility"]["utilization"]
 
-    # power
-    d["kv_tier"] = d.max_kv.map(kv_tier)
+    # power: every line that runs >= 5 km inside the county counts; the strongest counts in full,
+    # each further line adds half as much as the one before (more lines = more capacity + redundancy)
+    mw = P["mw_by_kv"]
+    decay = P["extra_line_weight"]
+
+    def line_mw(r) -> float:
+        caps = [mw["500"]] * int(r.n_500) + [mw["345"]] * int(r.n_345) + [mw["230"]] * int(r.n_230)
+        return sum(c * decay ** i for i, c in enumerate(caps)) if caps else mw["0"]
+
+    d["lines_mw"] = d.apply(line_mw, axis=1)
+    d["top_kv"] = np.select([d.n_500 > 0, d.n_345 > 0, d.n_230 > 0], [500, 345, 230], 0)
+    d["edge_only"] = (d.top_kv == 0) & (d.max_kv > 0)          # a line only clips the county's edge
+    d["kv_tier"] = d.top_kv.map(kv_tier)
     bonus = np.minimum(P["planned_gen_bonus_cap"], d.planned_mw / 1000 * P["planned_gen_bonus_per_gw"])
     penalty = d.retire_mw / 1000 * P["retire_penalty_per_gw"]
-    d["power_mw"] = (d.kv_tier.map(lambda t: P["mw_by_kv"][t]) * (1 + bonus - penalty).clip(0.5, 1.5)).round()
+    # how much spare generation the grid operator has at its peak hour (EIA-930 vs EIA-860M)
+    G = P["grid_margin"]
+    small = d.ba_peak_mw.fillna(0) < G["min_operator_peak_mw"]
+    d["grid_mult"] = np.where(d.ba_margin.isna() | small, 1.0,
+                              np.interp(d.ba_margin.fillna(0), G["margin_points"], G["multipliers"])).round(2)
+    d["grid_small_ba"] = small & d.ba_margin.notna()
+    d["power_mw"] = (d.lines_mw * (1 + bonus - penalty).clip(0.5, 1.5) * d.grid_mult).round()
     d["months_lo"] = d.kv_tier.map(lambda t: P["months_by_kv"][t][0])
     d["months_hi"] = d.kv_tier.map(lambda t: P["months_by_kv"][t][1])
-    hv_km = d.km_230 + 1.5 * d.km_345 + 2.5 * d.km_500
     price_pct = 100 - pct(d.elec_ind_c.fillna(d.elec_ind_c.median()))
-    d["power_score"] = (0.55 * pct(d.power_mw + hv_km / 100) + 0.20 * pct(d.planned_mw + 0.2 * d.gen_firm_mw)
-                        + 0.25 * price_pct).round(1)
+    margin_pct = pct(d.ba_margin.where(~small).fillna(d.ba_margin.median()).clip(upper=1.0))
+    d["power_score"] = (0.45 * pct(d.power_mw) + 0.15 * pct(d.planned_mw + 0.2 * d.gen_firm_mw)
+                        + 0.20 * price_pct + 0.20 * margin_pct).round(1)
 
     # water
     d["water_allow_mgd"] = d.ps_mgd * W["allowance_share_of_public_supply"]
@@ -83,24 +102,24 @@ def table(cooling: str = F["water"]["default_cooling"]) -> pd.DataFrame:
     d["land_mw"] = (d.open_acres * L["open_land_share_available"] / L["acres_per_mw"]).round()
     d["land_score"] = (0.5 * pct(d.land_mw) + 0.5 * (100 - pct(d.density))).round(1)
 
+    # environment: how clean the local grid is, how stressed local water is, and how much clean power
+    # is being built nearby. Lower carbon, lower stress and more clean pipeline score higher.
+    V = F["environment"]
+    d["planned_clean_mw"] = d.planned_clean_mw.fillna(0)
+    d["carbon_score"] = (100 - pct(d.grid_co2_kg_kwh)).round(1)
+    d["clean_pipeline_score"] = pct(d.planned_clean_mw + 0.001 * d.grid_clean_share).round(1)
+    d["env_score"] = (V["weights"]["carbon"] * d.carbon_score + V["weights"]["water"] * (100 - d.water_stress)
+                      + V["weights"]["clean_pipeline"] * d.clean_pipeline_score).round(1)
+
     # combined
     caps = d[["power_mw", "water_mw", "land_mw"]]
     d["supportable_mw"] = caps.min(axis=1).clip(lower=0).round()
     d["binding"] = caps.idxmin(axis=1).str.replace("_mw", "", regex=False)
 
-    # grid operator: a county with no generator has none on file, so take the nearest county in the
-    # same state that has one (any state if none does). Flagged as estimated.
-    d["ba_est"] = d.ba.isna()
+    # grid operator: counties with no generator take the nearest county in the same state that has one
+    # (done in scripts/build_sites.py, flagged ba_est); the cost model reads it as ba_fill
+    d["ba_est"] = d.get("ba_est", pd.Series(False, index=d.index)).fillna(False).astype(bool)
     d["ba_fill"] = d.ba
-    lat, lon = np.radians(d.lat.to_numpy()), np.radians(d.lon.to_numpy())
-    known = d.ba.notna().to_numpy()
-    for i in np.flatnonzero(~known):
-        pool = known & (d.STUSPS.to_numpy() == d.STUSPS.iat[i])
-        if not pool.any():
-            pool = known
-        j = np.flatnonzero(pool)
-        dx = (lon[j] - lon[i]) * np.cos((lat[j] + lat[i]) / 2)
-        d.iat[i, d.columns.get_loc("ba_fill")] = d.ba.iat[j[np.argmin(dx * dx + (lat[j] - lat[i]) ** 2)]]
 
     # land price: state farmland value (USDA); Alaska, Hawaii and DC are not reported -> US average, flagged
     C = F["pricing"]
@@ -108,6 +127,15 @@ def table(cooling: str = F["water"]["default_cooling"]) -> pd.DataFrame:
     d["land_price_est"] = d.land_usd_acre.isna()
     d["land_usd_acre"] = d.land_usd_acre.fillna(C["land_usd_per_acre_us"])
     return d
+
+
+def energy_usd_mwh(d: pd.DataFrame, power: str) -> pd.Series:
+    """Energy price per MWh: the state industrial rate, or a PPA price plus delivery."""
+    C = F["pricing"]
+    src = C["power_sources"][power]
+    if src["usd_mwh"] is None:
+        return d.elec_ind_c * 10                                      # cents/kWh -> $/MWh
+    return pd.Series(src["usd_mwh"] + sum(C["ppa_delivery_c_per_kwh"]) / 2 * 10, index=d.index)
 
 
 @lru_cache(maxsize=16)
@@ -120,11 +148,7 @@ def priced(cooling: str = F["water"]["default_cooling"], power: str = F["pricing
     mwh = mw * util * 8760
 
     # power: energy at the state industrial rate, or a PPA price plus delivery
-    src = C["power_sources"][power]
-    if src["usd_mwh"] is None:
-        d["energy_usd_mwh"] = d.elec_ind_c * 10                      # cents/kWh -> $/MWh
-    else:
-        d["energy_usd_mwh"] = src["usd_mwh"] + sum(C["ppa_delivery_c_per_kwh"]) / 2 * 10
+    d["energy_usd_mwh"] = energy_usd_mwh(d, power)
     d["energy_cost_year"] = mwh * d.energy_usd_mwh
     # capacity: priced where a capacity market sets it (PJM, MISO, ISO-NE, NYISO); NaN = inside the energy price
     south = (d.ba_fill == "MISO") & d.STUSPS.isin(C["capacity_miso_south_states"])
@@ -165,7 +189,8 @@ def scored(cooling: str, weights: dict[str, float], power: str = F["pricing"]["d
 
 
 MAP_COLS = ["GEOID", "NAME", "STUSPS", "score", "power_score", "water_score", "land_score",
-            "supportable_mw", "binding", "max_kv", "cost_mwh", "cost_score"]
+            "supportable_mw", "binding", "max_kv", "top_kv", "cost_mwh", "cost_score",
+            "env_score", "grid_co2_kg_kwh", "grid_clean_share"]
 DEF_POWER = F["pricing"]["default_power_source"]
 
 
@@ -181,7 +206,31 @@ def tokens_per_day(mw: float, util: float) -> dict[str, dict[str, float]]:
             for k, c in E["classes"].items()}
 
 
-def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF_POWER) -> dict:
+def environment(r: dict, mw: float, cooling: str) -> dict:
+    """Yearly footprint of a campus of `mw` here (same logic as the AI Energy Bill project:
+    kWh x grid CO2 rate; water = on-site cooling + water used at the power plants)."""
+    V, util = F["environment"], F["facility"]["utilization"]
+    kwh = mw * 1000 * util * 8760
+    co2_t = kwh * r["grid_co2_kg_kwh"] / 1000
+    onsite_l = kwh * F["water"]["cooling"][cooling]["l_per_kwh"] * r["heat_mult"]
+    offsite_l = kwh * r["grid_water_l_kwh"]
+    us = V["us_avg_co2_kg_kwh"]
+    return {
+        "mw": mw, "kwh_year": kwh, "co2_t_year": co2_t,
+        "co2_vs_us": r["grid_co2_kg_kwh"] / us - 1,
+        "co2_t_if_us_avg": kwh * us / 1000,
+        "trees": co2_t * 1000 / V["tree_kg_co2_per_year"],
+        "homes": kwh / V["home_kwh_per_year"],
+        "cars": co2_t / V["car_t_co2_per_year"],
+        "water_onsite_l": onsite_l, "water_offsite_l": offsite_l,
+        "water_pools": (onsite_l + offsite_l) / V["olympic_pool_l"],
+        "water_share_of_ps": (onsite_l / 3.785e6 / 365) / r["ps_mgd"] if r["ps_mgd"] else None,
+        "clean_share": r["grid_clean_share"], "mix": r.get("grid_mix"), "mix_estimated": r.get("grid_mix_est"),
+    }
+
+
+def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF_POWER,
+           env_mw: float | None = None) -> dict:
     d = scored(cooling, weights, power)
     row = d[d.GEOID == geoid]
     if row.empty:
@@ -194,6 +243,8 @@ def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF
     per_mw = water_mgd_per_mw(cooling, util) * r["heat_mult"]
     price = F["water"]["price_per_kgal_overrides"].get(geoid)
     src = C["power_sources"][power]
+    # footprint: the same campus the cost is for (what fits here), or a smaller size if one is asked for
+    env_size = min(env_mw, mw) if env_mw else mw
     r |= {
         "rank": int((d.score > r["score"]).sum()) + 1,
         "of": len(d),
@@ -217,6 +268,8 @@ def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF
         "water_price_source": price["where"] if price else "National default (no local tariff loaded) ⚑",
         "water_share_of_ps": (mw * per_mw / r["ps_mgd"]) if r["ps_mgd"] else None,
         "tokens": tokens_per_day(mw, util),
+        "env": environment(r, env_size, cooling),
+        "env_rank": int((d.env_score > r["env_score"]).sum()) + 1,
         "all_cooling": {c: round(r["water_allow_mgd"] / (water_mgd_per_mw(c, util) * r["heat_mult"]))
                         for c in F["water"]["cooling"]},
     }
@@ -224,9 +277,10 @@ def detail(geoid: str, cooling: str, weights: dict[str, float], power: str = DEF
 
 
 def top(cooling: str, weights: dict[str, float], n: int = 10, min_mw: float = 0,
-        state: str | None = None, power: str = DEF_POWER) -> list[dict]:
+        state: str | None = None, power: str = DEF_POWER, by: str = "score") -> list[dict]:
     d = scored(cooling, weights, power)
     if state:
         d = d[d.STUSPS == state.upper()]
-    d = d[d.supportable_mw >= min_mw].sort_values("score", ascending=False).head(n)
+    by = by if by in ("score", "power_score", "water_score", "land_score", "cost_score", "env_score") else "score"
+    d = d[(d.supportable_mw >= min_mw) & d[by].notna()].sort_values(by, ascending=False).head(n)
     return json.loads(d[MAP_COLS + ["lat", "lon"]].to_json(orient="records"))

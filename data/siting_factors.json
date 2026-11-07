@@ -3,6 +3,14 @@
   "power": {
     "_note": "Indicative MW a new campus could draw from the existing >=230 kV network in the county, by highest line voltage. Rule of thumb: one 230 kV line carries ~200-400 MW, 345 kV ~400-900 MW, 500 kV 1,000+ MW.",
     "mw_by_kv": {"500": 1000, "345": 500, "230": 250, "0": 50},
+    "extra_line_weight": 0.5,
+    "_note_lines": "Only lines running at least 5 km inside the county count. The strongest line counts in full; each further line adds half as much as the one before, so totals approach 2x the strongest line.",
+    "grid_margin": {
+      "_note": "Spare firm generation at the grid operator's peak hour: capacity (EIA-860M, solar x0.3, wind x0.15) / peak demand (EIA-930, last 12 months, 99.9th percentile hour) - 1. Operators with a peak under 2 GW lean on their neighbours, so they are treated as neutral.",
+      "margin_points": [-0.2, 0.0, 0.15, 0.3, 0.5],
+      "multipliers":   [0.5, 0.65, 0.9, 1.0, 1.1],
+      "min_operator_peak_mw": 2000
+    },
     "months_by_kv": {"500": [24, 36], "345": [24, 42], "230": [36, 48], "0": [60, 96]},
     "planned_gen_bonus_per_gw": 0.25,
     "planned_gen_bonus_cap": 0.5,
@@ -68,10 +76,44 @@
     "land_premium_by_kv": {"0": 1, "230": 10, "345": 20, "500": 25},
     "capital_charge": 0.08
   },
+  "company": {
+    "_note": "Your company: the emissions of a company's AI use through a cloud API, for SB 253 reporting. See ASSUMPTIONS.md sections B and G.",
+    "api_price_per_m": {"_source": "Claude API list prices (Anthropic, cached 2026-10-06); the uploaded model is priced at the Claude model of the same size class", "small": {"model": "Claude Haiku 5.5", "input": 0.1, "cached": 0.01, "output": 0.5}, "medium": {"model": "Claude Sonnet 5.5", "input": 2.0, "cached": 0.2, "output": 10.0}, "large": {"model": "Claude Opus 5.5", "input": 4.0, "cached": 0.2, "output": 20.0}},
+    "cached_price_share": 0.1,
+    "_note_cached": "Cached input is priced at 10% of the input price for models priced from the team sheet (the sheet has no cache prices).",
+    "presets": {"_source": "Team model sheet, tab Usage assumptions (baseline scenarios; token ranges from https://iternal.ai/token-usage-guide): 30 requests per developer per day, 20 workdays, 1,250 input + 275 output tokens per request", "dev10": {"label": "Coding team: 10 developers", "requests": 6000, "input": 7500000, "output": 1650000}, "dev50": {"label": "Coding team: 50 developers", "requests": 30000, "input": 37500000, "output": 8250000}, "dev500": {"label": "Coding team: 500 developers", "requests": 300000, "input": 375000000, "output": 82500000}},
+    "reporting": {
+      "_note": "SB 253 / GHG Protocol framing. Location-based. Check CARB's final rules before filing.",
+      "provider_grid_kg_kwh": 0.35,
+      "_note_provider": "AI providers don't say which data center served a customer, so the default is the US average grid (same as the AI Energy Bill project).",
+      "scope_by_option": {"api": "Scope 3 · Category 1 (purchased goods and services)"},
+      "sb253": {"applies_to": "US companies with over $1 billion annual revenue that do business in California", "scope12_deadline": "2026-11-10", "scope12_note": "First Scope 1 and 2 reports are due November 10, 2026; limited assurance on Scope 1 and 2 starts in 2027.", "scope3_note": "Scope 3 reporting starts with the 2027 cycle. CARB's proposal phases in five categories first, including Category 1 (purchased goods and services) and Category 3 (fuel- and energy-related).", "scope2_methods": "CARB proposes both location-based and market-based Scope 2.", "sources": ["https://www.gtlaw.com/ar/insights/2026/10/california-sb-253-carb-sets-nov-10-2026-deadline-for-scope-1-and-scope-2-emissions-reports", "https://whatstrending.fenwick.com/post/carb-previews-2027-sb-253-reporting-rules-and-confirms-delayed-2026-deadline", "https://www.jdsupra.com/legalnews/carb-previews-proposed-regulations-for-6332261/"]},
+      "cloud_regions": [
+        {"label": "Northern Virginia", "geoid": "51107", "examples": "AWS us-east-1, Google us-east4"},
+        {"label": "Ohio", "geoid": "39049", "examples": "AWS us-east-2"},
+        {"label": "Iowa", "geoid": "19155", "examples": "Google us-central1, Azure Central US"},
+        {"label": "Texas", "geoid": "48113", "examples": "Google us-south1, Azure South Central US"},
+        {"label": "Oregon", "geoid": "41049", "examples": "AWS us-west-2, Google us-west1"},
+        {"label": "Central Washington", "geoid": "53025", "examples": "Azure West US 2"}
+      ],
+      "_note_cloud_regions": "Approximate public locations of large cloud regions, each mapped to one county in it; the grid factor is that county's grid operator. A provider can serve a request from any region."
+    }
+  },
+  "environment": {
+    "_note": "Environment mode. Grid CO2 and power-plant water come from each grid operator's 12-month EIA-930 generation mix; see scripts/build_sites.py (EIA and NREL factors). Equivalents follow the AI Energy Bill project (EPA).",
+    "weights": {"carbon": 0.5, "water": 0.3, "clean_pipeline": 0.2},
+    "us_avg_co2_kg_kwh": 0.35,
+    "tree_kg_co2_per_year": 60,
+    "home_kwh_per_year": 12194,
+    "car_t_co2_per_year": 4.6,
+    "olympic_pool_l": 2500000,
+    "default_campus_mw": 100
+  },
   "weights": {"power": 0.45, "water": 0.30, "land": 0.25},
   "sources": {
     "transmission": "HIFLD Electric Power Transmission Lines (>=230 kV), via ArcGIS FeatureServer US_Electric_Power_Transmission_Lines",
     "generation": "EIA-860M, September 2026 (operating, planned and retiring generators)",
+    "grid_load": "EIA-930 Hourly Electric Grid Monitor, balancing-authority demand, Jul 2025 - Jun 2026",
     "water": "USGS Estimated Use of Water in the United States, County-Level Data for 2015 (v2.0)",
     "climate": "NOAA nClimDiv county normals 1991-2020: annual precipitation and cooling degree days",
     "population": "US Census Bureau county population estimates, July 2024",

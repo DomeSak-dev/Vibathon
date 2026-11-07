@@ -27,6 +27,7 @@ RAW = ROOT / "data" / "raw"
 OUT_STATIC = ROOT / "app" / "static" / "data"
 OUT_STATIC.mkdir(parents=True, exist_ok=True)
 EQUAL_AREA = 5070  # NAD83 / Conus Albers, metres
+MIN_LINE_KM = 5    # a line must run at least this far inside a county to count as reachable
 
 STATE_ABBR = {"Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
               "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "District of Columbia": "DC",
@@ -55,6 +56,7 @@ def transmission(cty: gpd.GeoDataFrame) -> pd.DataFrame:
     lines["kv"] = pd.to_numeric(lines.VOLTAGE, errors="coerce")
     lines.loc[lines.VOLT_CLASS.eq("DC"), "kv"] = 500  # HVDC: treat as EHV
     lines = lines[lines.kv >= 220].to_crs(EQUAL_AREA)
+    lines["lid"] = np.arange(len(lines))
 
     # map layer: simplify ~1 km, round to 0.01 deg
     m = lines.copy()
@@ -73,14 +75,19 @@ def transmission(cty: gpd.GeoDataFrame) -> pd.DataFrame:
     (OUT_STATIC / "grid.json").write_text(json.dumps({"type": "FeatureCollection", "features": feats},
                                                     separators=(",", ":")), encoding="utf-8")
 
-    # per-county km by class, and max kV
-    pieces = gpd.overlay(lines[["kv", "geometry"]], cty[["GEOID", "geometry"]], how="intersection",
+    # per-county km by class, max kV, and lines that run far enough inside the county to tap
+    pieces = gpd.overlay(lines[["lid", "kv", "geometry"]], cty[["GEOID", "geometry"]], how="intersection",
                          keep_geom_type=True)
     pieces["km"] = pieces.length / 1000
     pieces["cls"] = np.select([pieces.kv >= 450, pieces.kv >= 300], ["km_500", "km_345"], "km_230")
     km = pieces.pivot_table(index="GEOID", columns="cls", values="km", aggfunc="sum").fillna(0)
     km["max_kv"] = pieces.groupby("GEOID").kv.max()
-    km["n_lines"] = pieces.groupby("GEOID").size()
+    per_line = pieces.groupby(["GEOID", "lid", "cls"], as_index=False).km.sum()
+    q = per_line[per_line.km >= MIN_LINE_KM]          # a corner clip can't host a substation
+    km["n_lines"] = per_line.groupby("GEOID").size()
+    for c, n in [("km_500", "n_500"), ("km_345", "n_345"), ("km_230", "n_230")]:
+        km[n] = q[q.cls == c].groupby("GEOID").size()
+    km[["n_500", "n_345", "n_230"]] = km[["n_500", "n_345", "n_230"]].fillna(0).astype(int)
     return km.reset_index()
 
 
@@ -108,9 +115,11 @@ def generators(cty: gpd.GeoDataFrame) -> pd.DataFrame:
         "retire_mw": op[ret_year.le(2030)].groupby("GEOID").mw.sum(),
         "planned_mw": pl[plan_year.le(2029)].groupby("GEOID").mw.sum(),
         "planned_n": pl[plan_year.le(2029)].groupby("GEOID").size(),
+        "planned_clean_mw": pl[plan_year.le(2029) & pl.Technology.str.contains(
+            "Solar|Wind|Batter|Nuclear|Hydro|Geothermal", case=False, na=False)].groupby("GEOID").mw.sum(),
         "ba": op.groupby("GEOID")["Balancing Authority Code"].agg(
             lambda s: s.dropna().mode().iat[0] if s.notna().any() else None),
-    }).fillna({"gen_mw": 0, "gen_firm_mw": 0, "retire_mw": 0, "planned_mw": 0, "planned_n": 0})
+    }).fillna({"gen_mw": 0, "gen_firm_mw": 0, "retire_mw": 0, "planned_mw": 0, "planned_n": 0, "planned_clean_mw": 0})
 
     # planned mix (top technologies) for the detail panel
     mix = (pl[plan_year.le(2029)].groupby(["GEOID", "Technology"]).mw.sum()
@@ -118,6 +127,72 @@ def generators(cty: gpd.GeoDataFrame) -> pd.DataFrame:
     out["planned_mix"] = mix.groupby("GEOID").apply(
         lambda d: [[t, round(m)] for t, m in zip(d.Technology.head(3), d.mw.head(3))])
     return out.reset_index()
+
+
+# Share of a plant's summer capacity that can be counted on at the evening peak (rough capacity credits)
+CAPACITY_CREDIT = {"SUN": 0.3, "WND": 0.15}
+
+
+def grid_tightness() -> pd.DataFrame:
+    """Peak hourly demand (EIA-930, last 12 months) vs. firm generating capacity (EIA-860M) per
+    balancing authority. Margin = capacity / peak - 1. Line loading itself is not public (CEII)."""
+    peaks = []
+    for f in ("eia930_2025_H2.csv", "eia930_2026_H1.csv"):
+        d = pd.read_csv(RAW / f, usecols=["Balancing Authority", "Demand (MW) (Adjusted)"], thousands=",")
+        d["mw"] = pd.to_numeric(d["Demand (MW) (Adjusted)"], errors="coerce")
+        peaks.append(d.dropna(subset=["mw"]))
+    d = pd.concat(peaks)
+    # 99.9th percentile of the hours drops bad readings but keeps the true peak (~9 hours a year)
+    peak = d.groupby("Balancing Authority").mw.quantile(0.999)
+    op = pd.read_excel(RAW / "eia860m.xlsx", "Operating", header=2)
+    op["mw"] = pd.to_numeric(op["Net Summer Capacity (MW)"], errors="coerce").fillna(0)
+    op["firm"] = op.mw * op["Energy Source Code"].map(CAPACITY_CREDIT).fillna(1.0)
+    cap = op.groupby("Balancing Authority Code").firm.sum()
+    t = pd.DataFrame({"ba_peak_mw": peak, "ba_firm_mw": cap}).dropna()
+    t = t[t.ba_peak_mw > 100]
+    t["ba_margin"] = t.ba_firm_mw / t.ba_peak_mw - 1
+    return t.rename_axis("ba").reset_index()
+
+
+# Grid mix from EIA-930 hourly generation by fuel (same 12 months as grid tightness).
+FUELS = {
+    "coal": ["Coal"], "gas": ["Natural Gas"], "nuclear": ["Nuclear"], "oil": ["All Petroleum Products"],
+    "hydro": ["Hydropower Excluding Pumped Storage"],
+    "solar": ["Solar without Integrated Battery Storage", "Solar with Integrated Battery Storage"],
+    "wind": ["Wind without Integrated Battery Storage", "Wind with Integrated Battery Storage"],
+    "geothermal": ["Geothermal"], "other": ["Other Fuel Sources", "Unknown Fuel Sources"],
+}
+# kg CO2 per kWh generated: EIA FAQ "How much carbon dioxide is produced per kWh" (coal 2.30, gas 0.97,
+# petroleum 2.38 lb/kWh); "other" (biomass, waste, unknown) is a rough 0.5
+CO2_KG_KWH = {"coal": 1.04, "gas": 0.44, "oil": 1.08, "other": 0.5}
+# litres of water consumed per kWh at the power plant: NREL Macknick et al. 2012 medians
+# (coal 687, gas combined cycle 198, nuclear 672 gal/MWh with cooling towers); hydro reservoir evaporation excluded
+WATER_L_KWH = {"coal": 2.60, "gas": 0.75, "nuclear": 2.54, "oil": 1.5, "other": 1.0, "geothermal": 1.0, "solar": 0.004}
+CLEAN = ("nuclear", "hydro", "solar", "wind", "geothermal")
+
+
+def grid_mix() -> pd.DataFrame:
+    parts = []
+    for f in ("eia930_2025_H2.csv", "eia930_2026_H1.csv"):
+        cols = ["Balancing Authority"] + [f"Net Generation (MW) from {c}" for cs in FUELS.values() for c in cs]
+        d = pd.read_csv(RAW / f, usecols=cols, thousands=",")
+        out = pd.DataFrame({"ba": d["Balancing Authority"]})
+        for fuel, cs in FUELS.items():
+            out[fuel] = sum(pd.to_numeric(d[f"Net Generation (MW) from {c}"], errors="coerce").fillna(0).clip(lower=0)
+                            for c in cs)
+        parts.append(out)
+    g = pd.concat(parts).groupby("ba").sum()           # MWh over 12 months (hourly MW)
+    tot = g.sum(axis=1)
+    g = g[tot > 0]
+    share = g.div(g.sum(axis=1), axis=0)
+    res = pd.DataFrame({
+        "grid_co2_kg_kwh": sum(share[f] * v for f, v in CO2_KG_KWH.items()),
+        "grid_clean_share": share[list(CLEAN)].sum(axis=1),
+        "grid_water_l_kwh": sum(share[f] * v for f, v in WATER_L_KWH.items()),
+        "grid_gen_twh": g.sum(axis=1) / 1e6,
+        "grid_mix": share.round(3).apply(lambda r: {k: v for k, v in r.items() if v >= 0.01}, axis=1),
+    })
+    return res.rename_axis("ba").reset_index()
 
 
 def water() -> pd.DataFrame:
@@ -183,6 +258,34 @@ def main() -> None:
                       (population(), "GEOID"), (climate(), "GEOID"), (prices(), "STUSPS")]:
         df = df.merge(part, on=key, how="left")
         print("joined", list(part.columns)[:4], "...")
+    # grid operator for counties with no power plant: the nearest county in the same state that has one
+    # (any state if none does), flagged as estimated
+    xy = cty.geometry.centroid
+    df["ba_est"] = df.ba.isna()
+    known = df.ba.notna().to_numpy()
+    x, y, st = xy.x.to_numpy(), xy.y.to_numpy(), df.STUSPS.to_numpy()
+    ba = df.ba.to_numpy(dtype=object).copy()
+    for i in np.flatnonzero(~known):
+        pool = known & (st == st[i])
+        if not pool.any():
+            pool = known
+        j = np.flatnonzero(pool)
+        ba[i] = df.ba.iat[j[np.argmin((x[j] - x[i]) ** 2 + (y[j] - y[i]) ** 2)]]
+    df["ba"] = ba
+    print("grid operator estimated for", int(df.ba_est.sum()), "counties (nearest county with a plant)")
+    gt = grid_tightness()
+    df = df.merge(gt, on="ba", how="left")
+    df = df.merge(grid_mix(), on="ba", how="left")
+    # drop operators whose reported generation is implausible next to their peak (e.g. BANC reports
+    # ~100x its real output): more than 3x what running at peak all year would produce
+    bad = df.grid_gen_twh > df.ba_peak_mw.fillna(0) * 8760 / 1e6 * 3
+    mix_cols = ["grid_co2_kg_kwh", "grid_clean_share", "grid_water_l_kwh"]
+    df.loc[bad, mix_cols + ["grid_mix"]] = None
+    df["grid_mix_est"] = df.grid_co2_kg_kwh.isna()
+    for c in mix_cols:   # counties without a usable operator: their state's median, else the US median
+        df[c] = df[c].fillna(df.groupby("STUSPS")[c].transform("median")).fillna(df[c].median())
+    print("grid mix for", int((~df.grid_mix_est).sum()), "counties;", int(bad.sum()), "dropped as implausible")
+    print("grid tightness for", int(df.ba_margin.notna().sum()), "counties;", len(gt), "operators")
     # Connecticut's 2022 planning regions (and 2 new AK areas) have no 2015 USGS row:
     # estimate from the state's per-capita use, and flag it
     df["water_est"] = df.ps_mgd.isna()
@@ -190,7 +293,7 @@ def main() -> None:
         st = df.groupby("STUSPS").apply(lambda d: d[c].sum() / d["pop"][d[c].notna()].sum())
         nat = df[c].sum() / df["pop"][df[c].notna()].sum()
         df[c] = df[c].fillna(df.STUSPS.map(st) * df["pop"]).fillna(nat * df["pop"])
-    for c in ["km_230", "km_345", "km_500", "max_kv", "n_lines"]:
+    for c in ["km_230", "km_345", "km_500", "max_kv", "n_lines", "n_500", "n_345", "n_230"]:
         df[c] = df.get(c, 0)
         df[c] = df[c].fillna(0)
     shapes = cty[["GEOID", "geometry"]].copy()

@@ -21,6 +21,9 @@ SOURCES = {
     "gazetteer_counties.zip": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_counties_national.zip",
     # Census county population estimates, July 2024 (one CSV, no key)
     "census_popest_2024.csv": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/counties/totals/co-est2024-alldata.csv",
+    # EIA-930 hourly demand by balancing authority, last 12 months (grid tightness)
+    "eia930_2025_H2.csv": "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_2025_Jul_Dec.csv",
+    "eia930_2026_H1.csv": "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_2026_Jan_Jun.csv",
     # County shapes for the map
     "counties-10m.json": "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json",
 }
