@@ -1,6 +1,6 @@
-# Time to Power
+# Where Tokens will Take You
 
-Data center siting for Theme 3 of the Vibathon. Pick a region on a spinning globe, then drill down from country to state to county. The country view colors each state by its best counties; clicking a state shows its counties scored on power (transmission lines), water and land. Click a county to see:
+Data center siting for Theme 3 of the Vibathon. Pick a region on a spinning globe (the team is pinned to home: Hovik in Armenia, Joy in China, Dome in Thailand, MJ in Trinidad and Tobago), then drill down from country to state to county. The country view colors each state by its best counties and pins the 10 best opportunities in the US: counties a large campus can use (100 MW+, a 230 kV+ line), ranked by the map's layer. Clicking a state shows its counties scored on power (transmission lines), water and land. Click a county to see:
 - the largest campus it could likely host, and what limits it;
 - months to power;
 - yearly cost: energy, capacity, water and sewer, and land (grid rate or a solar or wind PPA);
