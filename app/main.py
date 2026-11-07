@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import siting
+from . import listings, siting
 
 ROOT = Path(__file__).resolve().parent
 app = FastAPI(title="Time to Power · data center siting")
@@ -64,6 +64,19 @@ def county(geoid: str, cooling: str = COOL, wp: float = DEF["power"], ww: float 
         return siting.detail(geoid, _cooling(cooling), _weights(wp, ww, wl), _power(power))
     except KeyError:
         raise HTTPException(404, "Unknown county") from None
+
+
+@app.get("/api/sites/{geoid}")
+def sites(geoid: str, cooling: str = COOL, wp: float = DEF["power"], ww: float = DEF["water"], wl: float = DEF["land"],
+          power: str = POWER, min_mw: float = 0):
+    """Three sites for sale in the county that fit the campus (live web search; see app/listings.py)."""
+    try:
+        r = siting.detail(geoid, _cooling(cooling), _weights(wp, ww, wl), _power(power))
+    except KeyError:
+        raise HTTPException(404, "Unknown county") from None
+    need = listings.needs_for(r, min_mw, siting.F["land"]["acres_per_mw"], siting.F["facility"]["min_viable_mw"])
+    name = r["NAME"] if any(w in r["NAME"] for w in ("County", "Parish", "Borough", "city")) else r["NAME"] + " County"
+    return listings.find_sites(geoid, name, r["STATE_NAME"], r["STUSPS"], need)
 
 
 @app.get("/api/top")

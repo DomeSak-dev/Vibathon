@@ -2,6 +2,7 @@ fastapi>=0.115
 uvicorn[standard]>=0.30
 pandas>=2.2
 numpy>=1.26
+anthropic>=2.6  # optional: live sites for sale (app/listings.py)
 # only needed to rebuild data/ from raw downloads (scripts/build_sites.py)
 geopandas>=1.0
 pyogrio>=0.9

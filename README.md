@@ -4,7 +4,8 @@ Data center siting for Theme 3 of the Vibathon. Pick a region on a spinning glob
 - the largest campus it could likely host, and what limits it;
 - months to power;
 - yearly cost: energy, capacity, water and sewer, and land (grid rate or a solar or wind PPA);
-- how many AI tokens a day the campus could serve.
+- how many AI tokens a day the campus could serve;
+- three sites for sale right now that fit the campus (acreage, a nearby big line), from a live web search.
 
 Ideas and next steps: [suggestion.md](suggestion.md). Every assumption: [ASSUMPTIONS.md](ASSUMPTIONS.md).
 
@@ -21,6 +22,18 @@ python -m uvicorn app.main:app --port 8001
 ```
 
 Open http://localhost:8001. The processed data is already in the repo, so the demo needs no internet. d3 and the map files are in `app/static/vendor/`.
+
+**Sites for sale (optional).** Live listings need the Anthropic SDK and an API key on the server. Without them the county panel shows the same searches as links.
+
+```bash
+pip install anthropic
+```
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Each county search costs a few cents of API use and web searches, and the result is cached for 6 hours. Claude searches listing sites with Anthropic's web search, opens each listing to check it's still for sale, and returns its picks. Only links that came from a search result or an opened page are shown. Listing sites aren't scraped (see `app/listings.py`).
 
 ## Rebuild the data
 
@@ -45,7 +58,8 @@ NOAA climate files and the EIA price page were downloaded once into `data/raw/` 
 | `scripts/fetch_data.py` | Downloads HIFLD lines ≥230 kV, EIA-860M, USGS water, Census population and shapes |
 | `scripts/build_sites.py` | Joins everything to 3,144 counties → `data/counties.json`, map layers → `app/static/data/` |
 | `app/siting.py` | The model: power / water / land MW, scores, binding factor, costs, tokens |
-| `app/main.py` | FastAPI: `/api/config`, `/api/map`, `/api/county/{fips}`, `/api/top` |
+| `app/main.py` | FastAPI: `/api/config`, `/api/map`, `/api/county/{fips}`, `/api/top`, `/api/sites/{fips}` |
+| `app/listings.py` | Live sites for sale: web search for 3 listings that fit the campus |
 | `app/static/index.html` | The whole front end (D3, no build step) |
 | `data/siting_factors.json` | Every number the model uses; edit it here, not in code |
 | `data/energy_factors.json` | Wh per 1,000 tokens by model tier (from the AI Energy Bill project) |

@@ -57,6 +57,13 @@ Cost per year = energy + capacity + water and sewer + a yearly charge on the lan
 | C9 ⚑ | **Land is bought once and carried at 8% of its price a year.** | A common capital charge. It puts a one-time cost on the same yearly basis as the rest. |
 | C10 | **Cost per MWh = yearly total ÷ MWh at 70% load. The Cost map colors counties by its percentile (lighter = cheaper).** | Per-MWh cost compares counties of different sizes. |
 
+## Sites for sale
+| # | Assumption | Reason |
+|---|---|---|
+| F1 ⚑ | **A site needs 1 acre per MW for the campus you set (Minimum size, at least 100 MW), capped at what the county can host.** It also needs a 230 kV+ line nearby (the county's highest, within about 5 miles), industrial zoning or land that could be rezoned, and it must be for sale, not lease-only. | It's the same land rule as L2, applied to one parcel. |
+| F2 | **Listings come from a live web search by Claude, not from scraping listing sites.** Each pick links to the page it came from. A link that no search returned is dropped. "Not confirmed as still listed" means the page wasn't opened. | LoopNet, Crexi and LandWatch don't allow automated scraping. A search result is the closest thing to a feed we can use. |
+| F3 | **Results are cached for 6 hours per county and size.** | Listings change daily. The cache keeps repeat clicks fast and cheap. |
+
 ## Scoring
 | # | Assumption | Reason |
 |---|---|---|

@@ -103,7 +103,6 @@
   .pins g { cursor: pointer; }
   .pins circle { fill: var(--text-primary); stroke: #0e0f10; stroke-width: 1.5; filter: drop-shadow(0 2px 4px #000a); }
   .pins g:hover circle, .pins g.on circle { fill: var(--warning); }
-  .pins text { fill: #111; font-size: 10px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
   ol.top li > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .crumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
   .crumb a:hover { text-decoration: underline; }
@@ -172,6 +171,14 @@
   .factor .s { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
   ul.next { margin: 0; padding-left: 18px; color: var(--text-primary); line-height: 1.55; }
   ul.next li + li { margin-top: 4px; }
+  ul.sites { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 12px; }
+  ul.sites li + li { border-top: 1px solid var(--line); padding-top: 12px; }
+  ul.sites a { color: var(--text-primary); font-weight: 600; text-decoration: none; }
+  ul.sites a:hover { color: var(--accent); }
+  ul.sites .fit { color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }
+  .searching { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: reduce) { .searching { animation: none; } }
   ul.src { margin: 0; padding: 0; list-style: none; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
   ul.src li + li { margin-top: 6px; }
   ul.src b { color: var(--text-primary); font-weight: 500; }
@@ -400,7 +407,7 @@ const countyG = zoomG.append("g"), stFillG = zoomG.append("g"), stateG = zoomG.a
   pinG = zoomG.append("g").attr("class", "pins");
 const CENTROID = new Map();  // county GEOID -> [x, y] on the map
 let pinK = 1;
-const pinXf = d => `translate(${d.xy[0]},${d.xy[1]}) scale(${1 / Math.sqrt(pinK)})`;
+const pinXf = d => `translate(${d.xy[0]},${d.xy[1]}) scale(${1 / pinK})`;  // same size on screen at any zoom
 const mproj = d3.geoAlbersUsa();
 const mpath = d3.geoPath(mproj);
 const zoom = d3.zoom().scaleExtent([1, 24]).translateExtent([[-W * 0.6, -H * 0.6], [W * 1.6, H * 1.6]])
@@ -531,15 +538,13 @@ function drawPins(list) {
   const items = list.map((r, i) => ({ r, i, xy: CENTROID.get(r.GEOID) })).filter(d => d.xy && !isNaN(d.xy[0]));
   const g = pinG.selectAll("g").data(items, d => d.r.GEOID).join(enter => {
     const e = enter.append("g");
-    e.append("circle").attr("r", 8.5);
-    e.append("text");
+    e.append("circle").attr("r", 5);
     return e;
   });
   g.attr("transform", pinXf).classed("on", d => d.r.GEOID === state.sel)
     .on("click", (e, d) => { e.stopPropagation(); openCounty(d.r.GEOID, true); })
     .on("mousemove", (e, d) => showTip(e, { properties: { GEOID: d.r.GEOID } }))
     .on("mouseleave", () => $("#tip").style.display = "none");
-  g.select("text").text(d => d.i + 1);
 }
 
 async function renderTop() {
@@ -735,6 +740,8 @@ async function openCounty(g, fly = false) {
     </div>
     <div class="why num">Overall score ${r.score.toFixed(0)}, weighted power ${share("power")}% · water ${share("water")}% · land ${share("land")}%</div>
 
+    <div class="card" id="sitesCard"><h4>For sale now<span class="est">Live search</span></h4><div class="sub searching">Searching listings…</div></div>
+
     ${costCard}
 
     <div class="card">
@@ -789,6 +796,37 @@ async function openCounty(g, fly = false) {
     </details>
     <div class="note">Screening estimate. Not an interconnection study.</div>`;
   $("#detail").classList.add("open");
+  loadSites(g, seq);
+}
+
+// Three sites for sale that fit this campus, from a live web search on the server (app/listings.py)
+// listing text comes from the web: escape it, and allow only http(s) links
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
+async function loadSites(g, seq) {
+  const box = () => seq === detailSeq && state.sel === g ? $("#sitesCard") : null;
+  let d;
+  try { d = await getJSON(`/api/sites/${g}?min_mw=${state.minMw}&` + q()); }
+  catch (e) { d = { status: "error", reason: "Couldn’t reach the server." }; }
+  const el = box(); if (!el) return;
+  const need = d.need ? `${fmt(d.need.acres)}+ acres${d.need.kv ? ` near a ${d.need.kv} kV line` : ""}, for ${fmtMW(d.need.mw)}` : "";
+  const links = (d.links || []).map(l => `<a class="lnk-i" href="${safeUrl(l.url)}" target="_blank" rel="noopener">${l.label} ↗</a>`).join(" · ");
+  const head = `<h4>For sale now<span class="est">Live search</span></h4>${need ? `<div class="sub">Looking for ${need}</div>` : ""}`;
+  if (d.status !== "ok") {
+    el.innerHTML = `${head}<p class="rng" style="margin:8px 0">${esc(d.reason || "Live search is off.")} Search these yourself:</p><div>${links}</div>`;
+    return;
+  }
+  const money = v => v == null ? "Price not listed" : fmtMoney(v);
+  const items = d.sites.map(x => `
+    <li class="site">
+      <a href="${safeUrl(x.url)}" target="_blank" rel="noopener">${esc(x.name)} ↗</a>
+      <div class="rng num">${x.acres != null ? fmt(x.acres) + " acres" : "Size not listed"} · ${money(x.price_usd)} · ${esc(x.location)} · ${esc(x.source)}</div>
+      <div class="fit">${esc(x.fit)}</div>
+      <div class="rng">Check: ${esc(x.check)}${x.still_listed ? "" : " Not confirmed as still listed."}</div>
+    </li>`).join("");
+  el.innerHTML = `${head}${d.sites.length ? `<ul class="sites">${items}</ul>` : `<p class="rng" style="margin:8px 0">No listing found that fits. ${esc(d.note)}</p>`}
+    <div class="rng" style="margin-top:10px">Found by web search ${new Date(d.searched_at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}. Listings change fast. Confirm with the broker.</div>
+    <div style="margin-top:6px">${links}</div>`;
 }
 function closeDetail() { $("#detail").classList.remove("open"); state.sel = null; detailSeq++; paint(); pinG.selectAll("g").classed("on", false); }
 function goUp() {  // Esc: close the panel first, then step back up a level
